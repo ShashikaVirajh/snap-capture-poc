@@ -1,13 +1,13 @@
-import "./global.css";
-import { useEffect, useState } from "react";
-import { StatusBar } from "expo-status-bar";
-import { Text, View, TouchableOpacity } from "react-native";
 import { DeviceMotion } from "expo-sensors";
+import { StatusBar } from "expo-status-bar";
+import { useEffect, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import "./global.css";
 
 // -9.6 => 11° of tilt
 const TOP_DOWN_THRESHOLD = -9.6;
 
-  export default function App() {
+export default function App() {
   const [isTopDown, setIsTopDown] = useState(false);
 
   useEffect(() => {
@@ -26,9 +26,8 @@ const TOP_DOWN_THRESHOLD = -9.6;
 
       {/* Orientation indicator */}
       <View
-        className={`w-36 h-36 rounded-full items-center justify-center ${
-          isTopDown ? "bg-green-500" : "bg-red-500"
-        }`}
+        className={`w-36 h-36 rounded-full items-center justify-center ${isTopDown ? "bg-green-500" : "bg-red-500"
+          }`}
       >
         <Text className="text-white text-4xl">{isTopDown ? "✓" : "✕"}</Text>
       </View>
@@ -48,14 +47,12 @@ const TOP_DOWN_THRESHOLD = -9.6;
       {/* Camera button — enabled only when top-down */}
       <TouchableOpacity
         disabled={!isTopDown}
-        className={`px-10 py-4 rounded-2xl ${
-          isTopDown ? "bg-blue-500" : "bg-gray-300"
-        }`}
+        className={`px-10 py-4 rounded-2xl ${isTopDown ? "bg-blue-500" : "bg-gray-300"
+          }`}
       >
         <Text
-          className={`text-base font-semibold ${
-            isTopDown ? "text-white" : "text-gray-400"
-          }`}
+          className={`text-base font-semibold ${isTopDown ? "text-white" : "text-gray-400"
+            }`}
         >
           Capture Tray
         </Text>
