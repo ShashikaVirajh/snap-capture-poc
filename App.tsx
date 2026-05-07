@@ -4,8 +4,8 @@ import { StatusBar } from "expo-status-bar";
 import { Text, View, TouchableOpacity } from "react-native";
 import { DeviceMotion } from "expo-sensors";
 
-// -9.3 => 18° of tilt
-const TOP_DOWN_THRESHOLD = -9.3;
+// -9.6 => 11° of tilt
+const TOP_DOWN_THRESHOLD = -9.6;
 
   export default function App() {
   const [isTopDown, setIsTopDown] = useState(false);
@@ -36,12 +36,12 @@ const TOP_DOWN_THRESHOLD = -9.3;
       {/* Status label */}
       <View className="items-center gap-1">
         <Text className="text-lg font-semibold text-gray-800">
-          {isTopDown ? "Top-down detected" : "Wrong orientation"}
+          {isTopDown ? "Ready" : "Misaligned"}
         </Text>
         <Text className="text-sm text-gray-500 text-center px-8">
           {isTopDown
-            ? "You can now open the camera"
-            : "Hold the phone flat with the camera facing down"}
+            ? "Tray in capture position"
+            : "Position camera directly above the tray"}
         </Text>
       </View>
 
@@ -57,7 +57,7 @@ const TOP_DOWN_THRESHOLD = -9.3;
             isTopDown ? "text-white" : "text-gray-400"
           }`}
         >
-          Open Camera
+          Capture Tray
         </Text>
       </TouchableOpacity>
     </View>
