@@ -1,4 +1,5 @@
 import { CameraCapturedPicture, CameraView, useCameraPermissions } from "expo-camera";
+import * as ImageManipulator from "expo-image-manipulator";
 import { DeviceMotion } from "expo-sensors";
 import { StatusBar } from "expo-status-bar";
 import { styled } from "nativewind";
@@ -8,7 +9,6 @@ import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
-// -9.3 => 14° of tilt
 const TOP_DOWN_THRESHOLD = -9.3;
 
 const formatBytes = (bytes: number) => {
@@ -17,11 +17,20 @@ const formatBytes = (bytes: number) => {
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 };
 
+type CompressedPhoto = {
+  uri: string;
+  width: number;
+  height: number;
+  size: number;
+};
+
 export default function HomeScreen() {
   const [isAligned, setIsAligned] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
   const [photoSize, setPhotoSize] = useState<number | null>(null);
+  const [compressed, setCompressed] = useState<CompressedPhoto | null>(null);
+  const [activeTab, setActiveTab] = useState<"original" | "compressed">("original");
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
 
@@ -44,27 +53,52 @@ export default function HomeScreen() {
 
   const handleCapture = async () => {
     const captured = await cameraRef.current?.takePictureAsync();
-    if (captured) {
-      const response = await fetch(captured.uri);
-      const blob = await response.blob();
-      setPhotoSize(blob.size);
-      setPhoto(captured);
-      setShowCamera(false);
-    }
+    if (!captured) return;
+
+    const [originalBlob, compressedResult] = await Promise.all([
+      fetch(captured.uri).then((r) => r.blob()),
+      ImageManipulator.manipulateAsync(captured.uri, [], {
+        compress: 0.5,
+        format: ImageManipulator.SaveFormat.JPEG,
+      }),
+    ]);
+
+    const compressedBlob = await fetch(compressedResult.uri).then((r) => r.blob());
+
+    setPhotoSize(originalBlob.size);
+    setCompressed({
+      uri: compressedResult.uri,
+      width: compressedResult.width,
+      height: compressedResult.height,
+      size: compressedBlob.size,
+    });
+    setPhoto(captured);
+    setActiveTab("original");
+    setShowCamera(false);
   };
 
   const handleRetake = () => {
     setPhoto(null);
     setPhotoSize(null);
+    setCompressed(null);
+    setActiveTab("original");
   };
 
-  // ── Camera screen ──────────────────────────────────────────────
+  const compressionRatio =
+    photoSize && compressed
+      ? ((1 - compressed.size / photoSize) * 100).toFixed(1)
+      : null;
+
+  const activeUri = activeTab === "original" ? photo?.uri : compressed?.uri;
+  const activeWidth = activeTab === "original" ? photo?.width : compressed?.width;
+  const activeHeight = activeTab === "original" ? photo?.height : compressed?.height;
+  const activeSize = activeTab === "original" ? photoSize : (compressed?.size ?? null);
+
   if (showCamera) {
     return (
       <View className="flex-1">
         <StatusBar style="light" />
         <CameraView ref={cameraRef} style={StyleSheet.absoluteFillObject} facing="back">
-          {/* Top bar */}
           <SafeAreaView edges={["top"]}>
             <View className="flex-row items-center px-6 py-4 bg-black/40">
               <TouchableOpacity onPress={() => setShowCamera(false)}>
@@ -77,7 +111,6 @@ export default function HomeScreen() {
             </View>
           </SafeAreaView>
 
-          {/* Alignment pill */}
           <View className="items-center mt-4">
             <View
               className={`px-4 py-1 rounded-full ${isAligned ? "bg-green-500/80" : "bg-red-500/80"}`}
@@ -88,7 +121,6 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Shutter button */}
           <SafeAreaView
             edges={["bottom"]}
             className="absolute bottom-0 w-full items-center pb-6"
@@ -108,57 +140,78 @@ export default function HomeScreen() {
     );
   }
 
-  // ── Image details screen ───────────────────────────────────────
-  if (photo) {
+  if (photo && compressed) {
     return (
       <SafeAreaView className="flex-1 bg-gray-100">
         <StatusBar style="auto" />
 
-        {/* Image preview */}
-        <View className="mx-4 mt-4">
-          <Text className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2 ml-1">
-            Original
-          </Text>
-          <View
-            className="bg-white rounded-2xl border border-gray-200 overflow-hidden"
-            style={{ elevation: 4, shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}
+        {/* Tab toggle */}
+        <View className="mx-4 mt-4 flex-row bg-gray-200 rounded-2xl p-1 gap-1">
+          <TouchableOpacity
+            onPress={() => setActiveTab("original")}
+            className={`flex-1 py-2.5 rounded-xl items-center ${activeTab === "original" ? "bg-blue-500" : ""}`}
           >
-            <Image
-              source={{ uri: photo.uri }}
-              className="w-full"
-              style={{ height: 260 }}
-              resizeMode="cover"
-            />
-          </View>
+            <Text
+              className={`text-sm font-semibold ${activeTab === "original" ? "text-white" : "text-gray-500"}`}
+            >
+              Original
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setActiveTab("compressed")}
+            className={`flex-1 py-2.5 rounded-xl items-center ${activeTab === "compressed" ? "bg-blue-500" : ""}`}
+          >
+            <Text
+              className={`text-sm font-semibold ${activeTab === "compressed" ? "text-white" : "text-gray-500"}`}
+            >
+              Compressed
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Full-width image */}
+        <View
+          className="mx-4 mt-4 bg-white rounded-2xl border border-gray-200 overflow-hidden"
+          style={{
+            elevation: 4,
+            shadowColor: "#000",
+            shadowOpacity: 0.08,
+            shadowRadius: 8,
+            shadowOffset: { width: 0, height: 2 },
+          }}
+        >
+          <Image
+            source={{ uri: activeUri }}
+            style={{ width: "100%", height: 300 }}
+            resizeMode="cover"
+          />
         </View>
 
         {/* Details card */}
-        <View className="mx-4 mt-4 bg-white rounded-2xl p-4 gap-3">
-          <Text className="text-base font-semibold text-gray-800">Original Image</Text>
-
-          <View className="flex-row justify-between">
-            <Text className="text-sm text-gray-500">Width</Text>
-            <Text className="text-sm font-medium text-gray-800">{photo.width} px</Text>
-          </View>
-
-          <View className="flex-row justify-between">
-            <Text className="text-sm text-gray-500">Height</Text>
-            <Text className="text-sm font-medium text-gray-800">{photo.height} px</Text>
-          </View>
-
+        <View className="mx-4 mt-4 bg-white rounded-2xl border border-gray-200 p-4 gap-3">
           <View className="flex-row justify-between">
             <Text className="text-sm text-gray-500">Resolution</Text>
             <Text className="text-sm font-medium text-gray-800">
-              {photo.width} × {photo.height}
+              {activeWidth} x {activeHeight} px
             </Text>
           </View>
-
           <View className="flex-row justify-between">
             <Text className="text-sm text-gray-500">File size</Text>
             <Text className="text-sm font-medium text-gray-800">
-              {photoSize !== null ? formatBytes(photoSize) : "—"}
+              {activeSize !== null ? formatBytes(activeSize) : "—"}
             </Text>
           </View>
+          {activeTab === "compressed" && (
+            <>
+              <View className="h-px bg-gray-100" />
+              <View className="flex-row justify-between">
+                <Text className="text-sm text-gray-500">Saved</Text>
+                <Text className="text-sm font-semibold text-green-600">
+                  {formatBytes(photoSize! - compressed.size)} ({compressionRatio}%)
+                </Text>
+              </View>
+            </>
+          )}
         </View>
 
         <TouchableOpacity
@@ -171,21 +224,17 @@ export default function HomeScreen() {
     );
   }
 
-  // ── Home screen ────────────────────────────────────────────────
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <StatusBar style="auto" />
       <View className="flex-1 items-center justify-center gap-8">
-        {/* Orientation indicator */}
         <View
-          className={`w-36 h-36 rounded-full items-center justify-center ${
-            isAligned ? "bg-green-500" : "bg-red-500"
-          }`}
+          className={`w-36 h-36 rounded-full items-center justify-center ${isAligned ? "bg-green-500" : "bg-red-500"
+            }`}
         >
           <Text className="text-white text-4xl">{isAligned ? "✓" : "✕"}</Text>
         </View>
 
-        {/* Status label */}
         <View className="items-center gap-1">
           <Text className="text-lg font-semibold text-gray-800">
             {isAligned ? "Ready" : "Misaligned"}
@@ -197,18 +246,15 @@ export default function HomeScreen() {
           </Text>
         </View>
 
-        {/* Camera button */}
         <TouchableOpacity
           disabled={!isAligned}
           onPress={handleOpenCamera}
-          className={`px-10 py-4 rounded-2xl ${
-            isAligned ? "bg-blue-500" : "bg-gray-300"
-          }`}
+          className={`px-10 py-4 rounded-2xl ${isAligned ? "bg-blue-500" : "bg-gray-300"
+            }`}
         >
           <Text
-            className={`text-base font-semibold ${
-              isAligned ? "text-white" : "text-gray-400"
-            }`}
+            className={`text-base font-semibold ${isAligned ? "text-white" : "text-gray-400"
+              }`}
           >
             Capture Tray
           </Text>
