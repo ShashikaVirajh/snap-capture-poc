@@ -1,6 +1,7 @@
 import { CameraCapturedPicture, CameraView, useCameraPermissions } from "expo-camera";
 import { File } from "expo-file-system/next";
 import * as ImageManipulator from "expo-image-manipulator";
+import * as Haptics from "expo-haptics";
 import * as MediaLibrary from "expo-media-library";
 import { DeviceMotion } from "expo-sensors";
 import { StatusBar } from "expo-status-bar";
@@ -40,9 +41,11 @@ export default function HomeScreen() {
   const [photoSize, setPhotoSize] = useState<number | null>(null);
   const [compressed, setCompressed] = useState<CompressedPhoto | null>(null);
   const [activeTab, setActiveTab] = useState<"original" | "compressed">("original");
+  const [capturedAt, setCapturedAt] = useState<Date | null>(null);
   const [permission, requestPermission] = useCameraPermissions();
   const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
   const cameraRef = useRef<CameraView>(null);
+  const wasAligned = useRef(false);
 
   const isAligned = Math.abs(pitch) <= PITCH_THRESHOLD;
 
@@ -51,7 +54,13 @@ export default function HomeScreen() {
     const subscription = DeviceMotion.addListener((data) => {
       const y = data.accelerationIncludingGravity?.y ?? 0;
       const z = data.accelerationIncludingGravity?.z ?? 0;
-      setPitch(getPitch(y, z));
+      const newPitch = getPitch(y, z);
+      const aligned = Math.abs(newPitch) <= PITCH_THRESHOLD;
+      if (aligned && !wasAligned.current) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+      wasAligned.current = aligned;
+      setPitch(newPitch);
     });
 
     return () => subscription.remove();
@@ -61,13 +70,16 @@ export default function HomeScreen() {
     if (!permission?.granted) {
       await requestPermission();
     }
+    wasAligned.current = false;
     setShowCamera(true);
   };
 
   const handleCapture = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     setIsProcessing(true);
     try {
       const captured = await cameraRef.current?.takePictureAsync();
+      setCapturedAt(new Date());
       if (!captured) return;
 
       const [compressedResult] = await Promise.all([
@@ -113,7 +125,9 @@ export default function HomeScreen() {
     setPhoto(null);
     setPhotoSize(null);
     setCompressed(null);
+    setCapturedAt(null);
     setActiveTab("original");
+    setShowCamera(true);
   };
 
   const compressionRatio =
@@ -234,6 +248,17 @@ export default function HomeScreen() {
         </View>
 
         <View className="mx-4 mt-4 bg-white rounded-2xl border border-gray-200 p-4 gap-3">
+          <View className="flex-row justify-between">
+            <Text className="text-sm text-gray-500">Captured</Text>
+            <Text className="text-sm font-medium text-gray-800">
+              {capturedAt
+                ? capturedAt.toLocaleString("en-GB", {
+                    day: "2-digit", month: "short", year: "numeric",
+                    hour: "2-digit", minute: "2-digit", second: "2-digit",
+                  })
+                : "—"}
+            </Text>
+          </View>
           <View className="flex-row justify-between">
             <Text className="text-sm text-gray-500">Resolution</Text>
             <Text className="text-sm font-medium text-gray-800">
