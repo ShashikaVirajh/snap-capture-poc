@@ -9,7 +9,6 @@ import { formatBytes } from "../helpers/utils";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
-
 interface Props {
   photo: CameraCapturedPicture;
   compressed: CompressedPhoto;
@@ -19,7 +18,7 @@ interface Props {
   onTabChange: (tab: "original" | "compressed") => void;
   onSave: () => void;
   onRetake: () => void;
-};
+}
 
 const PhotoReviewScreen: FC<Props> = ({
   photo,
@@ -38,106 +37,109 @@ const PhotoReviewScreen: FC<Props> = ({
   const activeSize = activeTab === "original" ? photoSize : compressed.size;
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
-      <StatusBar style="auto" />
+    <SafeAreaView className="flex-1 bg-[#0d0d0d]">
+      <StatusBar style="light" />
 
-      <View className="mx-4 mt-4 flex-row bg-gray-200 rounded-2xl p-1 gap-1">
-        <TouchableOpacity
-          onPress={() => onTabChange("original")}
-          className={`flex-1 py-2.5 rounded-xl items-center ${activeTab === "original" ? "bg-blue-500" : ""}`}
-        >
-          <Text
-            className={`text-sm font-semibold ${activeTab === "original" ? "text-white" : "text-gray-500"}`}
-          >
-            Original
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => onTabChange("compressed")}
-          className={`flex-1 py-2.5 rounded-xl items-center ${activeTab === "compressed" ? "bg-blue-500" : ""}`}
-        >
-          <Text
-            className={`text-sm font-semibold ${activeTab === "compressed" ? "text-white" : "text-gray-500"}`}
-          >
-            Compressed
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      <View
-        className="mx-4 mt-4 bg-white rounded-2xl border border-gray-200 overflow-hidden"
-        style={{
-          elevation: 4,
-          shadowColor: "#000",
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 2 },
-        }}
-      >
-        <Image
-          source={{ uri: activeUri }}
-          style={{ width: "100%", height: 300 }}
-          resizeMode="cover"
-        />
-      </View>
-
-      <View className="mx-4 mt-4 bg-white rounded-2xl border border-gray-200 p-4 gap-3">
-        <View className="flex-row justify-between">
-          <Text className="text-sm text-gray-500">Captured</Text>
-          <Text className="text-sm font-medium text-gray-800">
-            {capturedAt
-              ? capturedAt.toLocaleString("en-GB", {
+      <View className="flex-row items-center px-5 py-4 border-b border-white/8">
+        <View className="flex-1 items-center">
+          <Text className="text-white text-[13px] font-bold tracking-[3px]">CAPTURE REVIEW</Text>
+          {capturedAt && (
+            <Text className="text-white/40 text-[12px] tracking-[1px] mt-1">
+              {capturedAt.toLocaleString("en-GB", {
                 day: "2-digit",
                 month: "short",
                 year: "numeric",
                 hour: "2-digit",
                 minute: "2-digit",
                 second: "2-digit",
-              })
-              : "—"}
-          </Text>
+              })}
+            </Text>
+          )}
         </View>
-        <View className="flex-row justify-between">
-          <Text className="text-sm text-gray-500">Resolution</Text>
-          <Text className="text-sm font-medium text-gray-800">
-            {activeWidth} x {activeHeight} px
+      </View>
+
+      <Image
+        source={{ uri: activeUri }}
+        style={{ width: "100%", height: 300 }}
+        resizeMode="cover"
+      />
+
+      <View className="flex-row border-b border-white/8">
+        <TouchableOpacity
+          onPress={() => onTabChange("original")}
+          className="flex-1 items-center py-3"
+        >
+          <Text className={`text-[11px] font-bold tracking-[2px] ${activeTab === "original" ? "text-white" : "text-white/30"}`}>
+            ORIGINAL
           </Text>
-        </View>
-        <View className="flex-row justify-between">
-          <Text className="text-sm text-gray-500">File size</Text>
-          <Text className="text-sm font-medium text-gray-800">
-            {formatBytes(activeSize)}
+
+          {activeTab === "original" && (
+            <View className="absolute bottom-0 left-6 right-6 h-[2px] bg-white" />
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => onTabChange("compressed")}
+          className="flex-1 items-center py-3"
+        >
+          <Text className={`text-[11px] font-bold tracking-[2px] ${activeTab === "compressed" ? "text-white" : "text-white/30"}`}>
+            COMPRESSED
           </Text>
+
+          {activeTab === "compressed" && (
+            <View className="absolute bottom-0 left-6 right-6 h-[2px] bg-white" />
+          )}
+        </TouchableOpacity>
+      </View>
+
+      <View className="px-5 py-5 gap-4">
+        <View className="flex-row justify-between items-center">
+          <Text className="text-white/40 text-[11px] tracking-[1.5px]">RESOLUTION</Text>
+          <Text className="text-white text-sm font-medium">{activeWidth} × {activeHeight} px</Text>
         </View>
+
+        <View className="h-px bg-white/8" />
+
+        <View className="flex-row justify-between items-center">
+          <Text className="text-white/40 text-[11px] tracking-[1.5px]">FILE SIZE</Text>
+          <Text className="text-white text-sm font-medium">{formatBytes(activeSize)}</Text>
+        </View>
+
         {activeTab === "compressed" && (
           <>
-            <View className="h-px bg-gray-100" />
-            <View className="flex-row justify-between">
-              <Text className="text-sm text-gray-500">Saved</Text>
-              <Text className="text-sm font-semibold text-green-600">
-                {formatBytes(photoSize - compressed.size)} ({compressionRatio}%)
+            <View className="h-px bg-white/8" />
+            <View className="flex-row justify-between items-center">
+              <Text className="text-white/40 text-[11px] tracking-[1.5px]">SAVED</Text>
+              <Text className="text-green-400 text-sm font-semibold">
+                {formatBytes(photoSize - compressed.size)} · {compressionRatio}%
               </Text>
             </View>
           </>
         )}
       </View>
 
-      <View className="mx-4 mt-4 flex-row gap-3">
-        <TouchableOpacity
-          onPress={onRetake}
-          className="flex-1 py-4 bg-gray-200 rounded-2xl items-center"
-        >
-          <Text className="text-base font-semibold text-gray-700">Retake</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onSave}
-          className="flex-1 py-4 bg-blue-500 rounded-2xl items-center"
-        >
-          <Text className="text-base font-semibold text-white">Save</Text>
-        </TouchableOpacity>
+      <View className="flex-1 justify-end px-5 pb-6">
+        <View className="flex-row gap-3">
+          <TouchableOpacity
+            onPress={onRetake}
+            className="flex-1 py-4 rounded-2xl border border-white/15 items-center"
+            activeOpacity={0.75}
+          >
+            <Text className="text-white/70 font-bold tracking-[2px] text-[12px]">RETAKE</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={onSave}
+            className="flex-1 py-4 rounded-2xl bg-white items-center"
+            activeOpacity={0.85}
+          >
+            <Text className="text-black font-bold tracking-[2px] text-[12px]">SAVE</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
     </SafeAreaView>
   );
-}
+};
 
 export default PhotoReviewScreen;
