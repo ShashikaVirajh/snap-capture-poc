@@ -20,6 +20,11 @@ const getPitch = (y: number, z: number): number => {
   return Math.atan2(y, Math.abs(z)) * (180 / Math.PI);
 };
 
+const getRoll = (x: number, z: number): number => {
+  if (Math.abs(z) < 0.5) return 90;
+  return Math.atan2(x, Math.abs(z)) * (180 / Math.PI);
+};
+
 const formatBytes = (bytes: number) => {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -35,6 +40,7 @@ type CompressedPhoto = {
 
 export default function HomeScreen() {
   const [pitch, setPitch] = useState(90);
+  const [roll, setRoll] = useState(90);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
@@ -47,20 +53,23 @@ export default function HomeScreen() {
   const cameraRef = useRef<CameraView>(null);
   const wasAligned = useRef(false);
 
-  const isAligned = Math.abs(pitch) <= PITCH_THRESHOLD;
+  const isAligned = Math.abs(pitch) <= PITCH_THRESHOLD && Math.abs(roll) <= PITCH_THRESHOLD;
 
   useEffect(() => {
     DeviceMotion.setUpdateInterval(200);
     const subscription = DeviceMotion.addListener((data) => {
+      const x = data.accelerationIncludingGravity?.x ?? 0;
       const y = data.accelerationIncludingGravity?.y ?? 0;
       const z = data.accelerationIncludingGravity?.z ?? 0;
       const newPitch = getPitch(y, z);
-      const aligned = Math.abs(newPitch) <= PITCH_THRESHOLD;
+      const newRoll = getRoll(x, z);
+      const aligned = Math.abs(newPitch) <= PITCH_THRESHOLD && Math.abs(newRoll) <= PITCH_THRESHOLD;
       if (aligned && !wasAligned.current) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
       wasAligned.current = aligned;
       setPitch(newPitch);
+      setRoll(newRoll);
     });
 
     return () => subscription.remove();
@@ -167,7 +176,7 @@ export default function HomeScreen() {
                 {isAligned ? "Aligned" : "Misaligned"}
               </Text>
               <Text className="text-white/80 text-sm">
-                {Math.round(Math.abs(pitch))}°
+                P {Math.round(Math.abs(pitch))}° R {Math.round(Math.abs(roll))}°
               </Text>
             </View>
           </View>
