@@ -5,12 +5,18 @@ import { DeviceMotion } from "expo-sensors";
 import { StatusBar } from "expo-status-bar";
 import { styled } from "nativewind";
 import { useEffect, useRef, useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
-const TOP_DOWN_THRESHOLD = -9.3;
+// Valid range: within ±10° of flat
+const PITCH_THRESHOLD = 10;
+
+const getPitch = (y: number, z: number): number => {
+  if (Math.abs(z) < 0.5) return 90;
+  return Math.atan2(y, Math.abs(z)) * (180 / Math.PI);
+};
 
 const formatBytes = (bytes: number) => {
   if (bytes < 1024) return `${bytes} B`;
@@ -26,7 +32,8 @@ type CompressedPhoto = {
 };
 
 export default function HomeScreen() {
-  const [isAligned, setIsAligned] = useState(false);
+  const [pitch, setPitch] = useState(90);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
   const [photoSize, setPhotoSize] = useState<number | null>(null);
@@ -35,11 +42,14 @@ export default function HomeScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
 
+  const isAligned = Math.abs(pitch) <= PITCH_THRESHOLD;
+
   useEffect(() => {
     DeviceMotion.setUpdateInterval(200);
     const subscription = DeviceMotion.addListener((data) => {
+      const y = data.accelerationIncludingGravity?.y ?? 0;
       const z = data.accelerationIncludingGravity?.z ?? 0;
-      setIsAligned(z < TOP_DOWN_THRESHOLD);
+      setPitch(getPitch(y, z));
     });
 
     return () => subscription.remove();
@@ -53,29 +63,34 @@ export default function HomeScreen() {
   };
 
   const handleCapture = async () => {
-    const captured = await cameraRef.current?.takePictureAsync();
-    if (!captured) return;
+    setIsProcessing(true);
+    try {
+      const captured = await cameraRef.current?.takePictureAsync();
+      if (!captured) return;
 
-    const [originalInfo, compressedResult] = await Promise.all([
-      FileSystem.getInfoAsync(captured.uri, { size: true }),
-      ImageManipulator.manipulateAsync(captured.uri, [], {
-        compress: 0.5,
-        format: ImageManipulator.SaveFormat.JPEG,
-      }),
-    ]);
+      const [originalInfo, compressedResult] = await Promise.all([
+        FileSystem.getInfoAsync(captured.uri, { size: true }),
+        ImageManipulator.manipulateAsync(captured.uri, [], {
+          compress: 0.5,
+          format: ImageManipulator.SaveFormat.JPEG,
+        }),
+      ]);
 
-    const compressedInfo = await FileSystem.getInfoAsync(compressedResult.uri, { size: true });
+      const compressedInfo = await FileSystem.getInfoAsync(compressedResult.uri, { size: true });
 
-    setPhotoSize(originalInfo.exists ? originalInfo.size : null);
-    setCompressed({
-      uri: compressedResult.uri,
-      width: compressedResult.width,
-      height: compressedResult.height,
-      size: compressedInfo.exists ? compressedInfo.size : 0,
-    });
-    setPhoto(captured);
-    setActiveTab("original");
-    setShowCamera(false);
+      setPhotoSize(originalInfo.exists ? originalInfo.size : null);
+      setCompressed({
+        uri: compressedResult.uri,
+        width: compressedResult.width,
+        height: compressedResult.height,
+        size: compressedInfo.exists ? compressedInfo.size : 0,
+      });
+      setPhoto(captured);
+      setActiveTab("original");
+      setShowCamera(false);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleRetake = () => {
@@ -95,6 +110,7 @@ export default function HomeScreen() {
   const activeHeight = activeTab === "original" ? photo?.height : compressed?.height;
   const activeSize = activeTab === "original" ? photoSize : (compressed?.size ?? null);
 
+  // ── Camera screen ──────────────────────────────────────────────
   if (showCamera) {
     return (
       <View className="flex-1">
@@ -112,41 +128,55 @@ export default function HomeScreen() {
             </View>
           </SafeAreaView>
 
+          {/* Alignment pill with pitch */}
           <View className="items-center mt-4">
             <View
-              className={`px-4 py-1 rounded-full ${isAligned ? "bg-green-500/80" : "bg-red-500/80"}`}
+              className={`px-4 py-1 rounded-full flex-row gap-2 items-center ${isAligned ? "bg-green-500/80" : "bg-red-500/80"}`}
             >
               <Text className="text-white text-sm font-medium">
-                {isAligned ? "Aligned" : "Misaligned — adjust angle"}
+                {isAligned ? "Aligned" : "Misaligned"}
+              </Text>
+              <Text className="text-white/80 text-sm">
+                {Math.round(Math.abs(pitch))}°
               </Text>
             </View>
           </View>
 
+          {/* Shutter / processing */}
           <SafeAreaView
             edges={["bottom"]}
             className="absolute bottom-0 w-full items-center pb-6"
           >
-            <TouchableOpacity
-              onPress={handleCapture}
-              disabled={!isAligned}
-              className={`w-20 h-20 rounded-full border-4 border-white items-center justify-center ${isAligned ? "bg-white/30" : "bg-white/10"}`}
-            >
-              <View
-                className={`w-14 h-14 rounded-full ${isAligned ? "bg-white" : "bg-white/40"}`}
-              />
-            </TouchableOpacity>
+            {isProcessing ? (
+              <View className="w-20 h-20 rounded-full bg-white/20 items-center justify-center">
+                <ActivityIndicator color="white" size="large" />
+              </View>
+            ) : (
+              <TouchableOpacity
+                onPress={handleCapture}
+                disabled={!isAligned}
+                className={`w-20 h-20 rounded-full border-4 border-white items-center justify-center ${isAligned ? "bg-white/30" : "bg-white/10"}`}
+              >
+                <View
+                  className={`w-14 h-14 rounded-full ${isAligned ? "bg-white" : "bg-white/40"}`}
+                />
+              </TouchableOpacity>
+            )}
+            {isProcessing && (
+              <Text className="text-white/80 text-xs mt-2">Processing...</Text>
+            )}
           </SafeAreaView>
         </CameraView>
       </View>
     );
   }
 
+  // ── Image details screen ───────────────────────────────────────
   if (photo && compressed) {
     return (
       <SafeAreaView className="flex-1 bg-gray-100">
         <StatusBar style="auto" />
 
-        {/* Tab toggle */}
         <View className="mx-4 mt-4 flex-row bg-gray-200 rounded-2xl p-1 gap-1">
           <TouchableOpacity
             onPress={() => setActiveTab("original")}
@@ -170,7 +200,6 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Full-width image */}
         <View
           className="mx-4 mt-4 bg-white rounded-2xl border border-gray-200 overflow-hidden"
           style={{
@@ -188,7 +217,6 @@ export default function HomeScreen() {
           />
         </View>
 
-        {/* Details card */}
         <View className="mx-4 mt-4 bg-white rounded-2xl border border-gray-200 p-4 gap-3">
           <View className="flex-row justify-between">
             <Text className="text-sm text-gray-500">Resolution</Text>
@@ -225,15 +253,18 @@ export default function HomeScreen() {
     );
   }
 
+  // ── Home screen ────────────────────────────────────────────────
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <StatusBar style="auto" />
       <View className="flex-1 items-center justify-center gap-8">
         <View
-          className={`w-36 h-36 rounded-full items-center justify-center ${isAligned ? "bg-green-500" : "bg-red-500"
-            }`}
+          className={`w-36 h-36 rounded-full items-center justify-center ${
+            isAligned ? "bg-green-500" : "bg-red-500"
+          }`}
         >
           <Text className="text-white text-4xl">{isAligned ? "✓" : "✕"}</Text>
+          <Text className="text-white/80 text-sm mt-1">{Math.round(Math.abs(pitch))}°</Text>
         </View>
 
         <View className="items-center gap-1">
@@ -250,12 +281,14 @@ export default function HomeScreen() {
         <TouchableOpacity
           disabled={!isAligned}
           onPress={handleOpenCamera}
-          className={`px-10 py-4 rounded-2xl ${isAligned ? "bg-blue-500" : "bg-gray-300"
-            }`}
+          className={`px-10 py-4 rounded-2xl ${
+            isAligned ? "bg-blue-500" : "bg-gray-300"
+          }`}
         >
           <Text
-            className={`text-base font-semibold ${isAligned ? "text-white" : "text-gray-400"
-              }`}
+            className={`text-base font-semibold ${
+              isAligned ? "text-white" : "text-gray-400"
+            }`}
           >
             Capture Tray
           </Text>
