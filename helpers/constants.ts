@@ -1,0 +1,1 @@
+export const PITCH_THRESHOLD = 5;
