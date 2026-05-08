@@ -15,7 +15,7 @@ interface Props {
   isProcessing: boolean;
   onCapture: () => void;
   onCancel: () => void;
-};
+}
 
 const CameraScreen: FC<Props> = ({
   cameraRef,
@@ -26,61 +26,84 @@ const CameraScreen: FC<Props> = ({
   onCapture,
   onCancel,
 }) => {
+  const bracketColor = isAligned ? "border-green-500" : "border-red-500";
+
   return (
-    <View className="flex-1">
+    <View className="flex-1 bg-black">
       <StatusBar style="light" />
+
       <CameraView ref={cameraRef} style={StyleSheet.absoluteFillObject} facing="back">
-        <SafeAreaView edges={["top"]}>
-          <View className="flex-row items-center px-6 py-4 bg-black/40">
-            <TouchableOpacity onPress={onCancel}>
-              <Text className="text-white text-base font-medium">Cancel</Text>
+        <SafeAreaView edges={["top"]} className="bg-black/55">
+          <View className="flex-row items-center px-5 py-3.5">
+            <TouchableOpacity onPress={onCancel} className="w-16">
+              <Text className="text-white/75 text-base">Cancel</Text>
             </TouchableOpacity>
-            <Text className="flex-1 text-white text-center font-semibold">
-              Surgical Tray Capture
-            </Text>
-            <View className="w-14" />
+            <View className="flex-1 items-center">
+              <Text className="text-white text-[13px] font-bold tracking-[3px]">SURGICAL TRAY</Text>
+              <Text className="text-white/45 text-[10px] tracking-[4px] mt-0.5">CAPTURE</Text>
+            </View>
+            <View className="w-16" />
           </View>
         </SafeAreaView>
 
-        <View className="items-center mt-4">
-          <View
-            className={`px-4 py-1 rounded-full flex-row gap-2 items-center ${isAligned ? "bg-green-500/80" : "bg-red-500/80"}`}
-          >
-            <Text className="text-white text-sm font-medium">
-              {isAligned ? "Aligned" : "Misaligned"}
-            </Text>
-            <Text className="text-white/80 text-sm">
-              P {Math.round(Math.abs(pitch))}° R {Math.round(Math.abs(roll))}°
+
+        <View className="items-center mt-3.5">
+          <View className={`px-4 py-2 rounded-full ${isAligned ? "bg-green-500/85" : "bg-red-500/85"}`}>
+            <Text className="text-white text-[11px] font-bold tracking-[1.5px]">
+              {isAligned ? "READY TO CAPTURE" : "ALIGN CAMERA"}
             </Text>
           </View>
         </View>
 
-        <SafeAreaView
-          edges={["bottom"]}
-          className="absolute bottom-0 w-full items-center pb-6"
-        >
-          {isProcessing ? (
-            <View className="w-20 h-20 rounded-full bg-white/20 items-center justify-center">
-              <ActivityIndicator color="white" size="large" />
+
+        <View pointerEvents="none" style={StyleSheet.absoluteFillObject}>
+
+          <View className={`absolute w-8 h-8 top-[20%] left-[12%] border-t-[3px] border-l-[3px] ${bracketColor}`} />
+          <View className={`absolute w-8 h-8 top-[20%] right-[12%] border-t-[3px] border-r-[3px] ${bracketColor}`} />
+          <View className={`absolute w-8 h-8 bottom-[28%] left-[12%] border-b-[3px] border-l-[3px] ${bracketColor}`} />
+          <View className={`absolute w-8 h-8 bottom-[28%] right-[12%] border-b-[3px] border-r-[3px] ${bracketColor}`} />
+
+          <View style={{ position: "absolute", top: "50%", left: "50%", width: 18, height: StyleSheet.hairlineWidth, marginLeft: -9, backgroundColor: "rgba(255,255,255,0.4)" }} />
+          <View style={{ position: "absolute", top: "50%", left: "50%", width: StyleSheet.hairlineWidth, height: 18, marginTop: -9, backgroundColor: "rgba(255,255,255,0.4)" }} />
+        </View>
+
+        <SafeAreaView edges={["bottom"]} className="absolute bottom-0 w-full bg-black/55">
+          <View className="flex-row items-center justify-between px-10 pt-6 pb-3">
+            <View className="items-center w-14">
+              <Text className="text-white/45 text-[9px] font-bold tracking-[1.5px] mb-1">PITCH</Text>
+              <Text className={`text-xl font-light ${Math.abs(pitch) <= 5 ? "text-green-400" : "text-red-400"}`}>
+                {Math.round(Math.abs(pitch))}°
+              </Text>
             </View>
-          ) : (
-            <TouchableOpacity
-              onPress={onCapture}
-              disabled={!isAligned}
-              className={`w-20 h-20 rounded-full border-4 border-white items-center justify-center ${isAligned ? "bg-white/30" : "bg-white/10"}`}
-            >
-              <View
-                className={`w-14 h-14 rounded-full ${isAligned ? "bg-white" : "bg-white/40"}`}
-              />
-            </TouchableOpacity>
-          )}
+
+            {isProcessing ? (
+              <View className="w-[78px] h-[78px] rounded-full border-[3px] border-white/25 items-center justify-center">
+                <ActivityIndicator color="white" size="large" />
+              </View>
+            ) : (
+              <TouchableOpacity onPress={onCapture} disabled={!isAligned} activeOpacity={0.75}>
+                <View className={`w-[78px] h-[78px] rounded-full border-[3px] items-center justify-center ${isAligned ? "border-white" : "border-white/25"}`}>
+                  <View className={`w-[62px] h-[62px] rounded-full ${isAligned ? "bg-white" : "bg-white/20"}`} />
+                </View>
+              </TouchableOpacity>
+            )}
+
+            <View className="items-center w-14">
+              <Text className="text-white/45 text-[9px] font-bold tracking-[1.5px] mb-1">ROLL</Text>
+              <Text className={`text-xl font-light ${Math.abs(roll) <= 5 ? "text-green-400" : "text-red-400"}`}>
+                {Math.round(Math.abs(roll))}°
+              </Text>
+            </View>
+
+          </View>
           {isProcessing && (
-            <Text className="text-white/80 text-xs mt-2">Processing...</Text>
+            <Text className="text-white/50 text-[11px] tracking-[1.5px] text-center pb-2">Processing…</Text>
           )}
         </SafeAreaView>
+
       </CameraView>
     </View>
   );
-}
+};
 
 export default CameraScreen;
