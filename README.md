@@ -8,7 +8,7 @@ A React Native (Expo) proof-of-concept for top-down surgical tray image capture 
 
 - **Orientation enforcement** — Camera shutter is locked until the device is held flat (pitch ≤ 5°, roll ≤ 5°)
 - **Haptic feedback** — Vibration when alignment is achieved and on capture
-- **Image compression** — Captured image is automatically compressed to 50% JPEG quality
+- **Image compression** — Captured image is automatically compressed using JPEG quality 50, typically achieving 60–80% file size reduction depending on image content
 - **Side-by-side comparison** — Review original and compressed image with full metadata (resolution, format, file size, savings)
 - **Save to Photos** — Save either version directly to the device photo library
 
@@ -16,9 +16,9 @@ A React Native (Expo) proof-of-concept for top-down surgical tray image capture 
 
 ## Requirements
 
-- macOS with [Xcode](https://developer.apple.com/xcode/) installed
 - Node.js 18+
-- A physical iPhone (orientation detection does not work on the iOS Simulator)
+- [Expo Go](https://expo.dev/go) installed on a physical iPhone
+- A physical iPhone is required — orientation detection does not work on the iOS Simulator
 
 ---
 
@@ -30,21 +30,25 @@ A React Native (Expo) proof-of-concept for top-down surgical tray image capture 
 npm install
 ```
 
-**2. Build and run on iOS**
-
-```bash
-npx expo run:ios
-```
-
-This will compile the native iOS app and launch it on a connected iPhone or the iOS Simulator.
-
-> The first build takes a few minutes. Subsequent runs are faster.
-
-**3. Start the dev server only (if the app is already installed)**
+**2. Start the dev server**
 
 ```bash
 npx expo start
 ```
+
+**3. Open in Expo Go**
+
+Scan the QR code from the terminal using the iPhone camera. The app will open in Expo Go.
+
+---
+
+## Device Settings
+
+For haptic feedback to work, ensure the following are enabled on the iPhone:
+
+**Settings → Sounds & Haptics**
+- Vibration → ON
+- System Haptics → ON
 
 ---
 
