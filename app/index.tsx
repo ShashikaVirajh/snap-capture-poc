@@ -9,14 +9,13 @@ import { styled } from "nativewind";
 import { useEffect, useRef, useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
+import CameraScreen from "../components/Camera";
+import PhotoReview from "../components/PhotoReview";
 import { PITCH_THRESHOLD } from "../helpers/constants";
 import { CompressedPhoto } from "../helpers/types";
 import { getPitch, getRoll } from "../helpers/utils";
-import CameraScreen from "../components/Camera";
-import PhotoReview from "../components/PhotoReview";
 
 const SafeAreaView = styled(RNSafeAreaView);
-
 
 const HomeScreen = () => {
   const [pitch, setPitch] = useState(90);
