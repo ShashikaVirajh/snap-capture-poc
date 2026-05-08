@@ -12,7 +12,7 @@ import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 import CameraScreen from "../components/Camera";
 import PhotoReview from "../components/PhotoReview";
-import { PITCH_THRESHOLD } from "../helpers/constants";
+import { ORIENTATION_THRESHOLD } from "../helpers/constants";
 import { CompressedPhoto } from "../helpers/types";
 import { getPitch, getRoll } from "../helpers/utils";
 
@@ -34,7 +34,7 @@ const HomeScreen = () => {
   const wasAligned = useRef(false);
 
   const isAligned =
-    Math.abs(pitch) <= PITCH_THRESHOLD && Math.abs(roll) <= PITCH_THRESHOLD;
+    Math.abs(pitch) <= ORIENTATION_THRESHOLD && Math.abs(roll) <= ORIENTATION_THRESHOLD;
 
   useEffect(() => {
     DeviceMotion.setUpdateInterval(200);
@@ -45,7 +45,7 @@ const HomeScreen = () => {
       const newPitch = getPitch(y, z);
       const newRoll = getRoll(x, z);
       const aligned =
-        Math.abs(newPitch) <= PITCH_THRESHOLD && Math.abs(newRoll) <= PITCH_THRESHOLD;
+        Math.abs(newPitch) <= ORIENTATION_THRESHOLD && Math.abs(newRoll) <= ORIENTATION_THRESHOLD;
       if (aligned && !wasAligned.current) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }

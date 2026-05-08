@@ -1,1 +1,1 @@
-export const PITCH_THRESHOLD = 5;
+export const ORIENTATION_THRESHOLD = 5;
