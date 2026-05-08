@@ -5,7 +5,7 @@ import { FC } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 import { CompressedPhoto } from "../helpers/types";
-import { formatBytes } from "../helpers/utils";
+import { formatBytes, getFormat } from "../helpers/utils";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
@@ -101,12 +101,28 @@ const PhotoReviewScreen: FC<Props> = ({
         <View className="h-px bg-white/8" />
 
         <View className="flex-row justify-between items-center">
-          <Text className="text-white/40 text-[11px] tracking-[1.5px]">FILE SIZE</Text>
-          <Text className="text-white text-sm font-medium">{formatBytes(activeSize)}</Text>
+          <Text className="text-white/40 text-[11px] tracking-[1.5px]">FORMAT</Text>
+          <Text className="text-white text-sm font-medium">{getFormat(activeUri)}</Text>
         </View>
 
-        {activeTab === "compressed" && (
+        <View className="h-px bg-white/8" />
+
+        {activeTab === "original" ? (
+          <View className="flex-row justify-between items-center">
+            <Text className="text-white/40 text-[11px] tracking-[1.5px]">FILE SIZE</Text>
+            <Text className="text-white text-sm font-medium">{formatBytes(activeSize)}</Text>
+          </View>
+        ) : (
           <>
+            <View className="flex-row justify-between items-center">
+              <Text className="text-white/40 text-[11px] tracking-[1.5px]">ORIGINAL</Text>
+              <Text className="text-white/50 text-sm font-medium">{formatBytes(photoSize)}</Text>
+            </View>
+            <View className="h-px bg-white/8" />
+            <View className="flex-row justify-between items-center">
+              <Text className="text-white/40 text-[11px] tracking-[1.5px]">COMPRESSED</Text>
+              <Text className="text-white text-sm font-medium">{formatBytes(compressed.size)}</Text>
+            </View>
             <View className="h-px bg-white/8" />
             <View className="flex-row justify-between items-center">
               <Text className="text-white/40 text-[11px] tracking-[1.5px]">SAVED</Text>

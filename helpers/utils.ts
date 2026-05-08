@@ -13,3 +13,10 @@ export const formatBytes = (bytes: number): string => {
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 };
+
+export const getFormat = (uri: string): string => {
+    const ext = uri.split(".").pop()?.toLowerCase();
+    if (ext === "heic" || ext === "heif") return "HEIF";
+    if (ext === "png") return "PNG";
+    return "JPEG";
+};
