@@ -1,4 +1,5 @@
 import { CameraCapturedPicture, CameraView, useCameraPermissions } from "expo-camera";
+import * as FileSystem from "expo-file-system";
 import * as ImageManipulator from "expo-image-manipulator";
 import { DeviceMotion } from "expo-sensors";
 import { StatusBar } from "expo-status-bar";
@@ -55,22 +56,22 @@ export default function HomeScreen() {
     const captured = await cameraRef.current?.takePictureAsync();
     if (!captured) return;
 
-    const [originalBlob, compressedResult] = await Promise.all([
-      fetch(captured.uri).then((r) => r.blob()),
+    const [originalInfo, compressedResult] = await Promise.all([
+      FileSystem.getInfoAsync(captured.uri, { size: true }),
       ImageManipulator.manipulateAsync(captured.uri, [], {
         compress: 0.5,
         format: ImageManipulator.SaveFormat.JPEG,
       }),
     ]);
 
-    const compressedBlob = await fetch(compressedResult.uri).then((r) => r.blob());
+    const compressedInfo = await FileSystem.getInfoAsync(compressedResult.uri, { size: true });
 
-    setPhotoSize(originalBlob.size);
+    setPhotoSize(originalInfo.exists ? originalInfo.size : null);
     setCompressed({
       uri: compressedResult.uri,
       width: compressedResult.width,
       height: compressedResult.height,
-      size: compressedBlob.size,
+      size: compressedInfo.exists ? compressedInfo.size : 0,
     });
     setPhoto(captured);
     setActiveTab("original");
