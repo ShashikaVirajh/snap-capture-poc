@@ -1,7 +1,7 @@
 import { CameraCapturedPicture, CameraView, useCameraPermissions } from "expo-camera";
 import { File } from "expo-file-system/next";
-import * as ImageManipulator from "expo-image-manipulator";
 import * as Haptics from "expo-haptics";
+import * as ImageManipulator from "expo-image-manipulator";
 import * as MediaLibrary from "expo-media-library";
 import { DeviceMotion } from "expo-sensors";
 import { StatusBar } from "expo-status-bar";
@@ -12,8 +12,8 @@ import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
-// Valid range: within ±10° of flat
-const PITCH_THRESHOLD = 10;
+// Valid range: within 5 of flat
+const PITCH_THRESHOLD = 5;
 
 const getPitch = (y: number, z: number): number => {
   if (Math.abs(z) < 0.5) return 90;
@@ -262,9 +262,9 @@ export default function HomeScreen() {
             <Text className="text-sm font-medium text-gray-800">
               {capturedAt
                 ? capturedAt.toLocaleString("en-GB", {
-                    day: "2-digit", month: "short", year: "numeric",
-                    hour: "2-digit", minute: "2-digit", second: "2-digit",
-                  })
+                  day: "2-digit", month: "short", year: "numeric",
+                  hour: "2-digit", minute: "2-digit", second: "2-digit",
+                })
                 : "—"}
             </Text>
           </View>
