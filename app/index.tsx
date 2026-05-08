@@ -1,11 +1,12 @@
 import { CameraCapturedPicture, CameraView, useCameraPermissions } from "expo-camera";
 import { File } from "expo-file-system/next";
 import * as ImageManipulator from "expo-image-manipulator";
+import * as MediaLibrary from "expo-media-library";
 import { DeviceMotion } from "expo-sensors";
 import { StatusBar } from "expo-status-bar";
 import { styled } from "nativewind";
 import { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 
 const SafeAreaView = styled(RNSafeAreaView);
@@ -40,6 +41,7 @@ export default function HomeScreen() {
   const [compressed, setCompressed] = useState<CompressedPhoto | null>(null);
   const [activeTab, setActiveTab] = useState<"original" | "compressed">("original");
   const [permission, requestPermission] = useCameraPermissions();
+  const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
   const cameraRef = useRef<CameraView>(null);
 
   const isAligned = Math.abs(pitch) <= PITCH_THRESHOLD;
@@ -91,6 +93,20 @@ export default function HomeScreen() {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleSave = async () => {
+    if (!mediaPermission?.granted) {
+      const { granted } = await requestMediaPermission();
+      if (!granted) {
+        Alert.alert("Permission required", "Allow access to Photos to save images.");
+        return;
+      }
+    }
+    const uriToSave = activeTab === "original" ? photo?.uri : compressed?.uri;
+    if (!uriToSave) return;
+    await MediaLibrary.saveToLibraryAsync(uriToSave);
+    Alert.alert("Saved", "Image saved to Photos.");
   };
 
   const handleRetake = () => {
@@ -243,12 +259,20 @@ export default function HomeScreen() {
           )}
         </View>
 
-        <TouchableOpacity
-          onPress={handleRetake}
-          className="mx-4 mt-4 py-4 bg-blue-500 rounded-2xl items-center"
-        >
-          <Text className="text-white text-base font-semibold">Retake</Text>
-        </TouchableOpacity>
+        <View className="mx-4 mt-4 flex-row gap-3">
+          <TouchableOpacity
+            onPress={handleRetake}
+            className="flex-1 py-4 bg-gray-200 rounded-2xl items-center"
+          >
+            <Text className="text-base font-semibold text-gray-700">Retake</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleSave}
+            className="flex-1 py-4 bg-blue-500 rounded-2xl items-center"
+          >
+            <Text className="text-base font-semibold text-white">Save</Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     );
   }
