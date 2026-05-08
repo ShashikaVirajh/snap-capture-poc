@@ -1,5 +1,5 @@
 import { CameraCapturedPicture, CameraView, useCameraPermissions } from "expo-camera";
-import * as FileSystem from "expo-file-system";
+import { File } from "expo-file-system/next";
 import * as ImageManipulator from "expo-image-manipulator";
 import { DeviceMotion } from "expo-sensors";
 import { StatusBar } from "expo-status-bar";
@@ -68,22 +68,22 @@ export default function HomeScreen() {
       const captured = await cameraRef.current?.takePictureAsync();
       if (!captured) return;
 
-      const [originalInfo, compressedResult] = await Promise.all([
-        FileSystem.getInfoAsync(captured.uri, { size: true }),
+      const [compressedResult] = await Promise.all([
         ImageManipulator.manipulateAsync(captured.uri, [], {
           compress: 0.5,
           format: ImageManipulator.SaveFormat.JPEG,
         }),
       ]);
 
-      const compressedInfo = await FileSystem.getInfoAsync(compressedResult.uri, { size: true });
+      const originalSize = new File(captured.uri).size;
+      const compressedSize = new File(compressedResult.uri).size;
 
-      setPhotoSize(originalInfo.exists ? originalInfo.size : null);
+      setPhotoSize(originalSize);
       setCompressed({
         uri: compressedResult.uri,
         width: compressedResult.width,
         height: compressedResult.height,
-        size: compressedInfo.exists ? compressedInfo.size : 0,
+        size: compressedSize,
       });
       setPhoto(captured);
       setActiveTab("original");
@@ -258,40 +258,16 @@ export default function HomeScreen() {
     <SafeAreaView className="flex-1 bg-gray-100">
       <StatusBar style="auto" />
       <View className="flex-1 items-center justify-center gap-8">
-        <View
-          className={`w-36 h-36 rounded-full items-center justify-center ${
-            isAligned ? "bg-green-500" : "bg-red-500"
-          }`}
-        >
-          <Text className="text-white text-4xl">{isAligned ? "✓" : "✕"}</Text>
-          <Text className="text-white/80 text-sm mt-1">{Math.round(Math.abs(pitch))}°</Text>
-        </View>
-
-        <View className="items-center gap-1">
-          <Text className="text-lg font-semibold text-gray-800">
-            {isAligned ? "Ready" : "Misaligned"}
-          </Text>
-          <Text className="text-sm text-gray-500 text-center px-8">
-            {isAligned
-              ? "Tray in capture position"
-              : "Position camera directly above the tray"}
-          </Text>
-        </View>
+        <Text className="text-2xl font-bold text-gray-800">Surgical Tray Capture</Text>
+        <Text className="text-sm text-gray-500 text-center px-8">
+          Open the camera and position it directly above the tray to capture.
+        </Text>
 
         <TouchableOpacity
-          disabled={!isAligned}
           onPress={handleOpenCamera}
-          className={`px-10 py-4 rounded-2xl ${
-            isAligned ? "bg-blue-500" : "bg-gray-300"
-          }`}
+          className="px-10 py-4 rounded-2xl bg-blue-500"
         >
-          <Text
-            className={`text-base font-semibold ${
-              isAligned ? "text-white" : "text-gray-400"
-            }`}
-          >
-            Capture Tray
-          </Text>
+          <Text className="text-base font-semibold text-white">Open Camera</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
