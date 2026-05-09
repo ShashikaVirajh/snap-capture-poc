@@ -118,7 +118,7 @@ const PhotoReviewScreen: FC<Props> = ({
         <View className="flex-row gap-3">
           <TouchableOpacity
             onPress={onRetake}
-            style={{ flex: 1 }}
+            style={{ flex: 2 }}
             className="py-4 rounded-2xl border border-white/15 items-center"
             activeOpacity={0.75}
           >
@@ -126,11 +126,11 @@ const PhotoReviewScreen: FC<Props> = ({
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => onSave("compressed")}
-            style={{ flex: 1 }}
+            style={{ flex: 3 }}
             className="py-4 rounded-2xl bg-white items-center"
             activeOpacity={0.85}
           >
-            <Text className="text-black font-bold tracking-[2px] text-[12px]">SAVE</Text>
+            <Text className="text-black font-bold tracking-[2px] text-[12px]">SAVE COMPRESSED</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -140,7 +140,7 @@ const PhotoReviewScreen: FC<Props> = ({
           <Image
             source={{ uri: fullscreen === "original" ? photo.uri : compressed.uri }}
             style={{ flex: 1, width: "100%" }}
-            resizeMode="cover"
+            resizeMode="contain"
           />
           <TouchableOpacity
             onPress={() => setFullscreen(null)}

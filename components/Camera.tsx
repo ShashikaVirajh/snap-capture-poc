@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { CameraView } from "expo-camera";
 import * as Haptics from "expo-haptics";
 import { DeviceMotion } from "expo-sensors";
@@ -56,14 +57,14 @@ const CameraScreen: FC<Props> = ({ cameraRef, isProcessing, onCapture, onCancel 
       <CameraView ref={cameraRef} style={StyleSheet.absoluteFillObject} facing="back">
         <SafeAreaView edges={["top"]} className="bg-black/55">
           <View className="flex-row items-center px-5 py-3.5">
-            <TouchableOpacity onPress={onCancel} className="w-16">
-              <Text className="text-white/75 text-base">Cancel</Text>
-            </TouchableOpacity>
+            <View className="w-[22px]" />
             <View className="flex-1 items-center">
               <Text className="text-white text-[13px] font-bold tracking-[3px]">SURGICAL TRAY</Text>
               <Text className="text-white/45 text-[10px] tracking-[4px] mt-0.5">CAPTURE</Text>
             </View>
-            <View className="w-16" />
+            <TouchableOpacity onPress={onCancel} hitSlop={12}>
+              <Ionicons name="close" size={22} color="rgba(255,255,255,0.75)" />
+            </TouchableOpacity>
           </View>
         </SafeAreaView>
 
