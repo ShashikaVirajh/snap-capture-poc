@@ -19,7 +19,7 @@ interface Props {
   onCancel: () => void;
 }
 
-const CameraScreen: FC<Props> = ({ cameraRef, isProcessing, onCapture, onCancel }) => {
+const Capture: FC<Props> = ({ cameraRef, isProcessing, onCapture, onCancel }) => {
   const [pitch, setPitch] = useState(90);
   const [roll, setRoll] = useState(90);
   const [pictureSize, setPictureSize] = useState<string | undefined>(undefined);
@@ -151,4 +151,4 @@ const CameraScreen: FC<Props> = ({ cameraRef, isProcessing, onCapture, onCancel 
   );
 };
 
-export default CameraScreen;
+export default Capture;

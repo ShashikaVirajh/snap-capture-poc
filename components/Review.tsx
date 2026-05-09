@@ -20,7 +20,7 @@ interface Props {
   onClose: () => void;
 }
 
-const PhotoReviewScreen: FC<Props> = ({
+const Review: FC<Props> = ({
   photo,
   compressed,
   photoSize,
@@ -164,4 +164,4 @@ const PhotoReviewScreen: FC<Props> = ({
   );
 };
 
-export default PhotoReviewScreen;
+export default Review;
