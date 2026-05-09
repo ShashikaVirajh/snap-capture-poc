@@ -21,7 +21,6 @@ const HomeScreen = () => {
   const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
   const [photoSize, setPhotoSize] = useState<number | null>(null);
   const [compressed, setCompressed] = useState<CompressedPhoto | null>(null);
-  const [activeTab, setActiveTab] = useState<"original" | "compressed">("original");
   const [capturedAt, setCapturedAt] = useState<Date | null>(null);
   const [permission, requestPermission] = useCameraPermissions();
   const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
@@ -58,7 +57,6 @@ const HomeScreen = () => {
         size: compressedSize,
       });
       setPhoto(captured);
-      setActiveTab("original");
       setShowCamera(false);
     } catch {
       Alert.alert("Capture Failed", "Unable to take photo. Please try again.");
@@ -67,7 +65,7 @@ const HomeScreen = () => {
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (type: "original" | "compressed") => {
     if (!mediaPermission?.granted) {
       const { granted } = await requestMediaPermission();
       if (!granted) {
@@ -75,7 +73,7 @@ const HomeScreen = () => {
         return;
       }
     }
-    const uriToSave = activeTab === "original" ? photo?.uri : compressed?.uri;
+    const uriToSave = type === "original" ? photo?.uri : compressed?.uri;
     if (!uriToSave) return;
     await MediaLibrary.saveToLibraryAsync(uriToSave);
     Alert.alert("Saved", "Image saved to Photos.");
@@ -86,7 +84,6 @@ const HomeScreen = () => {
     setPhotoSize(null);
     setCompressed(null);
     setCapturedAt(null);
-    setActiveTab("original");
     setShowCamera(true);
   };
 
@@ -95,7 +92,6 @@ const HomeScreen = () => {
     setPhotoSize(null);
     setCompressed(null);
     setCapturedAt(null);
-    setActiveTab("original");
     setShowCamera(false);
   };
 
@@ -117,8 +113,6 @@ const HomeScreen = () => {
         compressed={compressed}
         photoSize={photoSize}
         capturedAt={capturedAt}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
         onSave={handleSave}
         onRetake={handleRetake}
         onClose={handleClose}

@@ -2,8 +2,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { CameraCapturedPicture } from "expo-camera";
 import { StatusBar } from "expo-status-bar";
 import { styled } from "nativewind";
-import { FC } from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { FC, useState } from "react";
+import { Image, Modal, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 import { CompressedPhoto } from "../helpers/types";
 import { formatBytes, getFormat } from "../helpers/utils";
@@ -15,9 +15,7 @@ interface Props {
   compressed: CompressedPhoto;
   photoSize: number;
   capturedAt: Date | null;
-  activeTab: "original" | "compressed";
-  onTabChange: (tab: "original" | "compressed") => void;
-  onSave: () => void;
+  onSave: (type: "original" | "compressed") => void;
   onRetake: () => void;
   onClose: () => void;
 }
@@ -27,20 +25,19 @@ const PhotoReviewScreen: FC<Props> = ({
   compressed,
   photoSize,
   capturedAt,
-  activeTab,
-  onTabChange,
   onSave,
   onRetake,
   onClose,
 }) => {
+  const [fullscreen, setFullscreen] = useState<"original" | "compressed" | null>(null);
   const compressionRatio = ((1 - compressed.size / photoSize) * 100).toFixed(1);
-  const activeUri = activeTab === "original" ? photo.uri : compressed.uri;
-  const activeSize = activeTab === "original" ? photoSize : compressed.size;
+  const imageAspectRatio = photo.width / photo.height;
 
   return (
     <SafeAreaView className="flex-1 bg-[#0d0d0d]">
       <StatusBar style="light" />
 
+      {/* ── Header ── */}
       <View className="flex-row items-center px-5 pt-4 pb-3">
         <View className="flex-1" />
         <Text className="text-white text-[13px] font-bold tracking-[3px]">CAPTURE SUMMARY</Text>
@@ -51,34 +48,31 @@ const PhotoReviewScreen: FC<Props> = ({
         </View>
       </View>
 
-      <View className="flex-row border-t border-b border-white/8">
-        <TouchableOpacity onPress={() => onTabChange("original")} className="flex-1 items-center py-3">
-          <Text className={`text-[11px] font-bold tracking-[2px] ${activeTab === "original" ? "text-blue-300" : "text-white/30"}`}>
-            ORIGINAL
-          </Text>
-          {activeTab === "original" && (
-            <View className="absolute bottom-0 left-6 right-6 h-[2px] bg-blue-300" />
-          )}
+      {/* ── Side by side images ── */}
+      <View className="flex-row gap-3 px-4">
+        <TouchableOpacity className="flex-1 gap-2" activeOpacity={0.85} onPress={() => setFullscreen("original")}>
+          <View style={{ aspectRatio: imageAspectRatio, borderRadius: 12, overflow: "hidden", backgroundColor: "#0d0d0d" }}>
+            <Image source={{ uri: photo.uri }} style={{ flex: 1 }} resizeMode="cover" />
+          </View>
+          <View className="gap-0.5">
+            <Text className="text-white/40 text-[10px] tracking-[1px]">ORIGINAL</Text>
+            <Text className="text-white text-sm font-medium">{formatBytes(photoSize)}</Text>
+          </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => onTabChange("compressed")} className="flex-1 items-center py-3">
-          <Text className={`text-[11px] font-bold tracking-[2px] ${activeTab === "compressed" ? "text-blue-300" : "text-white/30"}`}>
-            COMPRESSED
-          </Text>
-          {activeTab === "compressed" && (
-            <View className="absolute bottom-0 left-6 right-6 h-[2px] bg-blue-300" />
-          )}
+
+        <TouchableOpacity className="flex-1 gap-2" activeOpacity={0.85} onPress={() => setFullscreen("compressed")}>
+          <View style={{ aspectRatio: imageAspectRatio, borderRadius: 12, overflow: "hidden", backgroundColor: "#0d0d0d" }}>
+            <Image source={{ uri: compressed.uri }} style={{ flex: 1 }} resizeMode="cover" />
+          </View>
+          <View className="gap-0.5">
+            <Text className="text-white/40 text-[10px] tracking-[1px]">COMPRESSED</Text>
+            <Text className="text-white text-sm font-medium">{formatBytes(compressed.size)}</Text>
+          </View>
         </TouchableOpacity>
       </View>
 
-      <View className="flex-1 my-3 overflow-hidden bg-[#0d0d0d]">
-        <Image
-          source={{ uri: activeUri }}
-          style={{ flex: 1, width: "100%" }}
-          resizeMode="cover"
-        />
-      </View>
-
-      <View className="px-5 pb-3 gap-3">
+      {/* ── Details + saved ── */}
+      <View className="px-5 py-4 gap-3">
         <View className="flex-row gap-4">
           <View className="flex-1 gap-1">
             <Text className="text-white/40 text-[11px] tracking-[1px]">RESOLUTION</Text>
@@ -99,20 +93,16 @@ const PhotoReviewScreen: FC<Props> = ({
             </Text>
           </View>
           <View className="flex-1 gap-1 items-end">
-            <Text className="text-white/40 text-[11px] tracking-[1px]">SIZE</Text>
-            <Text className="text-white text-base font-medium">{formatBytes(activeSize)}</Text>
+            <Text className="text-white/40 text-[11px] tracking-[1px]">STORAGE SAVED</Text>
+            <Text className="text-green-400 text-base font-bold">
+              {formatBytes(photoSize - compressed.size)} · {compressionRatio}%
+            </Text>
           </View>
-        </View>
-
-        <View className="rounded-2xl bg-green-500/10 border border-green-500/25 px-5 py-3 flex-row items-center justify-between">
-          <Text className="text-green-400/60 text-[10px] font-bold tracking-[2px]">STORAGE SAVED</Text>
-          <Text className="text-green-400 text-base font-bold">
-            {formatBytes(photoSize - compressed.size)} · {compressionRatio}% reduction
-          </Text>
         </View>
       </View>
 
-      <View className="px-5 pb-6 pt-3 border-t border-white/8">
+      {/* ── Actions ── */}
+      <View className="px-5 pb-6 pt-2 border-t border-white/8">
         <View className="flex-row gap-3">
           <TouchableOpacity
             onPress={onRetake}
@@ -122,16 +112,41 @@ const PhotoReviewScreen: FC<Props> = ({
             <Text className="text-white/70 font-bold tracking-[2px] text-[12px]">RETAKE</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={onSave}
+            onPress={() => onSave("compressed")}
             className="flex-1 py-4 rounded-2xl bg-white items-center"
             activeOpacity={0.85}
           >
-            <Text className="text-black font-bold tracking-[2px] text-[12px]">
-              {activeTab === "original" ? "SAVE ORIGINAL" : "SAVE COMPRESSED"}
-            </Text>
+            <Text className="text-black font-bold tracking-[2px] text-[12px]">SAVE COMPRESSED</Text>
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* ── Fullscreen modal ── */}
+      <Modal visible={fullscreen !== null} transparent animationType="fade">
+        <View className="flex-1 bg-black">
+          <Image
+            source={{ uri: fullscreen === "original" ? photo.uri : compressed.uri }}
+            style={{ flex: 1, width: "100%" }}
+            resizeMode="cover"
+          />
+          <TouchableOpacity
+            onPress={() => setFullscreen(null)}
+            className="absolute top-14 right-5"
+            hitSlop={12}
+          >
+            <Ionicons name="close-circle" size={32} color="rgba(255,255,255,0.8)" />
+          </TouchableOpacity>
+          <View className="absolute bottom-12 left-0 right-0 items-center gap-1">
+            <Text className="text-white/50 text-[11px] tracking-[2px]">
+              {fullscreen === "original" ? "ORIGINAL" : "COMPRESSED"}
+            </Text>
+            <Text className="text-white text-base font-medium">
+              {fullscreen === "original" ? formatBytes(photoSize) : formatBytes(compressed.size)}
+            </Text>
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 };
