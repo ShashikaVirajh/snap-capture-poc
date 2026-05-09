@@ -89,7 +89,7 @@ const PhotoReviewScreen: FC<Props> = ({
             </View>
             <View className="flex-1 gap-0.5">
               <Text className="text-white/30 text-[10px] tracking-[1px]">FORMAT</Text>
-              <Text className="text-white/60 text-sm">{getFormat(compressed.uri)}</Text>
+              <Text className="text-white/60 text-sm">{getFormat(photo.uri)} → {getFormat(compressed.uri)}</Text>
             </View>
             <View className="flex-1 gap-0.5">
               <Text className="text-white/30 text-[10px] tracking-[1px]">CAPTURED</Text>
