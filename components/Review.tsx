@@ -5,14 +5,14 @@ import { styled } from "nativewind";
 import { FC, useState } from "react";
 import { Image, Modal, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
-import { CompressedPhoto } from "../helpers/types";
+import { TCompressedPhoto } from "../helpers/types";
 import { formatBytes, getFormat } from "../helpers/utils";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
 interface Props {
   photo: CameraCapturedPicture;
-  compressed: CompressedPhoto;
+  compressed: TCompressedPhoto;
   photoSize: number;
   capturedAt: Date | null;
   onSave: () => void;

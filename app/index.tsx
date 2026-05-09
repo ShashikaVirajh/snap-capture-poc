@@ -8,15 +8,15 @@ import { Alert } from "react-native";
 import Capture from "../components/Capture";
 import Landing from "../components/Landing";
 import Review from "../components/Review";
-import { CompressedPhoto } from "../helpers/types";
+import { TCompressedPhoto } from "../helpers/types";
 
 const App = () => {
   // NOTE: Flat states kept intentionally for POC clarity. Group by usage in production.                              
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
-  const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
-  const [photoSize, setPhotoSize] = useState<number | null>(null);
-  const [compressed, setCompressed] = useState<CompressedPhoto | null>(null);
+  const [originalPhoto, setOriginalPhoto] = useState<CameraCapturedPicture | null>(null);
+  const [originalPhotoSize, setOriginalPhotoSize] = useState<number | null>(null);
+  const [compressedPhoto, setCompressedPhoto] = useState<TCompressedPhoto | null>(null);
   const [capturedAt, setCapturedAt] = useState<Date | null>(null);
   const [permission, requestPermission] = useCameraPermissions();
   const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
@@ -39,7 +39,7 @@ const App = () => {
   const handleCapture = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
 
-    setIsProcessing(true);
+    setIsCompressing(true);
 
     try {
       const captured = await cameraRef.current?.takePictureAsync({ quality: 1, imageType: "png" });
@@ -51,8 +51,8 @@ const App = () => {
 
       setCapturedAt(new Date());
 
-      const originalSize = new File(captured.uri).size;
-      setPhotoSize(originalSize);
+      const capturedSize = new File(captured.uri).size;
+      setOriginalPhotoSize(capturedSize);
 
       const compressedResult = await ImageManipulator.manipulateAsync(captured.uri, [], {
         compress: 0.5,
@@ -61,19 +61,19 @@ const App = () => {
 
       const compressedSize = new File(compressedResult.uri).size;
 
-      setCompressed({
+      setCompressedPhoto({
         uri: compressedResult.uri,
         width: compressedResult.width,
         height: compressedResult.height,
         size: compressedSize,
       });
 
-      setPhoto(captured);
+      setOriginalPhoto(captured);
       setShowCamera(false);
     } catch {
       Alert.alert("Capture Failed", "Unable to take photo. Please try again.");
     } finally {
-      setIsProcessing(false);
+      setIsCompressing(false);
     }
   };
 
@@ -87,29 +87,29 @@ const App = () => {
       }
     }
 
-    const compressedPhoto = compressed?.uri;
+    const compressedUri = compressedPhoto?.uri;
 
-    if (!compressedPhoto) {
+    if (!compressedUri) {
       Alert.alert("Save Failed", "No image available to save. Please retake the photo.");
       return;
     };
 
-    await MediaLibrary.saveToLibraryAsync(compressedPhoto);
+    await MediaLibrary.saveToLibraryAsync(compressedUri);
     Alert.alert("Save Success", "Compressed image has been saved to your Photos library.");
   };
 
   const handleRetake = (): void => {
-    setPhoto(null);
-    setPhotoSize(null);
-    setCompressed(null);
+    setOriginalPhoto(null);
+    setOriginalPhotoSize(null);
+    setCompressedPhoto(null);
     setCapturedAt(null);
     setShowCamera(true);
   };
 
   const handleClose = (): void => {
-    setPhoto(null);
-    setPhotoSize(null);
-    setCompressed(null);
+    setOriginalPhoto(null);
+    setOriginalPhotoSize(null);
+    setCompressedPhoto(null);
     setCapturedAt(null);
     setShowCamera(false);
   };
@@ -119,7 +119,7 @@ const App = () => {
     return (
       <Capture
         cameraRef={cameraRef}
-        isProcessing={isProcessing}
+        isProcessing={isCompressing}
         onCapture={handleCapture}
         onCancel={() => setShowCamera(false)}
       />
@@ -127,12 +127,12 @@ const App = () => {
   }
 
   // Review Section
-  if (photo && compressed && photoSize !== null) {
+  if (originalPhoto && compressedPhoto && originalPhotoSize !== null) {
     return (
       <Review
-        photo={photo}
-        compressed={compressed}
-        photoSize={photoSize}
+        photo={originalPhoto}
+        compressed={compressedPhoto}
+        photoSize={originalPhotoSize}
         capturedAt={capturedAt}
         onSave={handleSave}
         onRetake={handleRetake}

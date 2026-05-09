@@ -1,4 +1,4 @@
-export type CompressedPhoto = {
+export type TCompressedPhoto = {
     uri: string;
     width: number;
     height: number;
