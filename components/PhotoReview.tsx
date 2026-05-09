@@ -37,7 +37,6 @@ const PhotoReviewScreen: FC<Props> = ({
     <SafeAreaView className="flex-1 bg-[#0d0d0d]">
       <StatusBar style="light" />
 
-      {/* ── Header ── */}
       <View className="flex-row items-center px-5 pt-4 pb-3">
         <View className="flex-1" />
         <Text className="text-white text-[13px] font-bold tracking-[3px]">CAPTURE SUMMARY</Text>
@@ -48,60 +47,62 @@ const PhotoReviewScreen: FC<Props> = ({
         </View>
       </View>
 
-      {/* ── Side by side images ── */}
       <View className="flex-row gap-3 px-4">
-        <TouchableOpacity className="flex-1 gap-2" activeOpacity={0.85} onPress={() => setFullscreen("original")}>
-          <View style={{ aspectRatio: imageAspectRatio, borderRadius: 12, overflow: "hidden", backgroundColor: "#0d0d0d" }}>
-            <Image source={{ uri: photo.uri }} style={{ flex: 1 }} resizeMode="cover" />
-          </View>
-          <View className="gap-0.5">
-            <Text className="text-white/40 text-[10px] tracking-[1px]">ORIGINAL</Text>
-            <Text className="text-white text-sm font-medium">{formatBytes(photoSize)}</Text>
-          </View>
+        <TouchableOpacity style={{ flex: 1, aspectRatio: imageAspectRatio, borderRadius: 12, overflow: "hidden", backgroundColor: "#0d0d0d" }} activeOpacity={0.85} onPress={() => setFullscreen("original")}>
+          <Image source={{ uri: photo.uri }} style={{ flex: 1 }} resizeMode="cover" />
         </TouchableOpacity>
 
-        <TouchableOpacity className="flex-1 gap-2" activeOpacity={0.85} onPress={() => setFullscreen("compressed")}>
-          <View style={{ aspectRatio: imageAspectRatio, borderRadius: 12, overflow: "hidden", backgroundColor: "#0d0d0d" }}>
-            <Image source={{ uri: compressed.uri }} style={{ flex: 1 }} resizeMode="cover" />
-          </View>
-          <View className="gap-0.5">
-            <Text className="text-white/40 text-[10px] tracking-[1px]">COMPRESSED</Text>
-            <Text className="text-white text-sm font-medium">{formatBytes(compressed.size)}</Text>
-          </View>
+        <TouchableOpacity style={{ flex: 1, aspectRatio: imageAspectRatio, borderRadius: 12, overflow: "hidden", backgroundColor: "#0d0d0d" }} activeOpacity={0.85} onPress={() => setFullscreen("compressed")}>
+          <Image source={{ uri: compressed.uri }} style={{ flex: 1 }} resizeMode="cover" />
         </TouchableOpacity>
       </View>
 
-      {/* ── Details + saved ── */}
       <View className="px-5 pt-4 pb-3 gap-3">
-        {/* Supporting details */}
         <View className="flex-row gap-4">
-          <View className="flex-1 gap-0.5">
+          <View className="flex-1 gap-0.5 items-start">
+            <Text className="text-white/30 text-[10px] tracking-[1px]">ORIGINAL</Text>
+            <Text className="text-white/60 text-sm">{formatBytes(photoSize)}</Text>
+          </View>
+          <View className="flex-1 gap-0.5 items-start">
+            <Text className="text-white/30 text-[10px] tracking-[1px]">COMPRESSED</Text>
+            <Text className="text-white/60 text-sm">{formatBytes(compressed.size)}</Text>
+          </View>
+          <View className="flex-1 gap-0.5 items-start">
+            <Text className="text-white/30 text-[10px] tracking-[1px]">SAVED</Text>
+            <Text className="text-green-400 text-sm font-semibold">{formatBytes(photoSize - compressed.size)}</Text>
+          </View>
+        </View>
+        <View className="flex-row gap-4">
+          <View className="flex-1 gap-0.5 items-start">
             <Text className="text-white/30 text-[10px] tracking-[1px]">RESOLUTION</Text>
             <Text className="text-white/60 text-sm">{photo.width} × {photo.height}</Text>
           </View>
-          <View className="flex-1 gap-0.5">
+          <View className="flex-1 gap-0.5 items-start">
             <Text className="text-white/30 text-[10px] tracking-[1px]">FORMAT</Text>
             <Text className="text-white/60 text-sm">{getFormat(compressed.uri)}</Text>
           </View>
-          <View className="flex-1 gap-0.5">
+          <View className="flex-1 gap-0.5 items-start">
             <Text className="text-white/30 text-[10px] tracking-[1px]">CAPTURED</Text>
             <Text className="text-white/60 text-sm">
               {capturedAt
-                ? `${capturedAt.toLocaleDateString([], { day: "2-digit", month: "short" })} ${capturedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+                ? `${capturedAt.toLocaleDateString([], { day: "2-digit", month: "short" })} ${capturedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false })}`
                 : "—"}
             </Text>
           </View>
         </View>
 
-        {/* Hero stat */}
-        <View className="rounded-2xl bg-green-500/10 border border-green-500/20 px-5 py-4 items-center gap-1">
-          <Text className="text-green-400/60 text-[10px] font-bold tracking-[2.5px]">STORAGE SAVED</Text>
-          <Text className="text-green-400 text-3xl font-bold">{formatBytes(photoSize - compressed.size)}</Text>
-          <Text className="text-green-400/70 text-sm">{compressionRatio}% reduction</Text>
+        <View className="rounded-2xl bg-green-500/10 border border-green-500/20 px-5 py-4 flex-row items-end justify-between">
+          <View className="gap-0.5">
+            <Text className="text-green-400/60 text-[10px] font-bold tracking-[1px]">STORAGE SAVED</Text>
+            <Text className="text-green-400 text-2xl font-bold">{formatBytes(photoSize - compressed.size)}</Text>
+          </View>
+          <View className="gap-0.5 items-end">
+            <Text className="text-green-400/60 text-[10px] font-bold tracking-[1px]">REDUCTION</Text>
+            <Text className="text-green-400 text-2xl font-bold">{compressionRatio}%</Text>
+          </View>
         </View>
       </View>
 
-      {/* ── Actions ── */}
       <View className="px-5 pb-6 pt-2 mt-auto">
         <View className="flex-row gap-3">
           <TouchableOpacity
@@ -123,7 +124,6 @@ const PhotoReviewScreen: FC<Props> = ({
         </View>
       </View>
 
-      {/* ── Fullscreen modal ── */}
       <Modal visible={fullscreen !== null} transparent animationType="fade">
         <View className="flex-1 bg-black">
           <Image
