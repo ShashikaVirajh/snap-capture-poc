@@ -24,9 +24,9 @@ All original requirements are met, plus additional polish:
 | Orientation detection | DeviceMotion pitch + roll, both must be within ±5° |
 | Alignment feedback | Green/red corner brackets + status pill + haptic vibration on alignment |
 | Camera capture | Shutter locked until aligned, haptic on capture |
-| Auto compression | JPEG quality 50 via expo-image-manipulator |
+| Auto compression | Captured as PNG (lossless), compressed once to JPEG quality 50 — no double lossy compression |
 | Side-by-side review | Original and compressed shown together, tap either to fullscreen |
-| Capture summary | 6-field details grid — ORIGINAL · COMPRESSED · SAVED / RESOLUTION · FORMAT · CAPTURED |
+| Capture summary | 6-field details grid — ORIGINAL · COMPRESSED · SAVED / RESOLUTION · FORMAT (PNG → JPEG) · CAPTURED |
 | Storage saved card | Highlights MB saved and % reduction |
 | Save to Photos | Always saves the compressed version |
 | Dark clinical UI | Monochrome dark theme with blue accent, consistent across all screens |
@@ -145,6 +145,7 @@ helpers/
 
 ## Notes
 
-- Compression uses JPEG quality 50 — this reduces file size significantly (typically 40–70%) without a noticeable visual difference at normal viewing distances
+- The camera captures in PNG (lossless) first, then compresses once to JPEG quality 50 — this avoids double lossy compression that would occur if capturing JPEG and re-encoding to JPEG
+- Compression reduces file size significantly (typically 40–70%) without a noticeable visual difference at normal viewing distances
 - Resolution is preserved — only the file size changes, not the pixel dimensions
 - The app is portrait-locked; orientation detection uses raw accelerometer data via DeviceMotion
