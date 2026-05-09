@@ -15,12 +15,14 @@ const Landing: FC<Props> = ({ onOpenCamera }) => {
   return (
     <SafeAreaView className="flex-1 bg-[#0d0d0d]">
       <StatusBar style="light" />
+
       <View className="flex-1 items-center justify-center px-6 gap-10">
-        <Ionicons name="scan-outline" size={96} color="rgba(255,255,255,0.6)" />
+        <Ionicons name="scan-outline" size={96} color="#ffffff99" />
 
         <View className="items-center gap-1">
           <Text className="text-white text-[32px] font-bold tracking-[6px]">SURGICAL</Text>
           <Text className="text-white text-[32px] font-bold tracking-[6px]">TRAY</Text>
+
           <View className="flex-row items-center gap-3 mt-2">
             <View className="h-px w-8 bg-white/20" />
             <Text className="text-white/40 text-[11px] tracking-[6px]">CAPTURE</Text>
@@ -36,6 +38,7 @@ const Landing: FC<Props> = ({ onOpenCamera }) => {
           <View className="px-3 py-1.5 rounded-full border border-white/10">
             <Text className="text-white/40 text-[10px] tracking-[1px]">ALIGNMENT</Text>
           </View>
+
           <View className="px-3 py-1.5 rounded-full border border-white/10">
             <Text className="text-white/40 text-[10px] tracking-[1px]">COMPRESSION</Text>
           </View>
