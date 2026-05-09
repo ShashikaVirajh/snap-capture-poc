@@ -47,7 +47,7 @@ const PhotoReviewScreen: FC<Props> = ({
         </View>
       </View>
 
-      <View className="flex-row gap-3 px-4">
+      <View className="flex-row gap-3 px-4 mt-3">
         <TouchableOpacity style={{ flex: 1, aspectRatio: imageAspectRatio, borderRadius: 12, overflow: "hidden", backgroundColor: "#0d0d0d" }} activeOpacity={0.85} onPress={() => setFullscreen("original")}>
           <Image source={{ uri: photo.uri }} style={{ flex: 1 }} resizeMode="cover" />
         </TouchableOpacity>
@@ -57,37 +57,48 @@ const PhotoReviewScreen: FC<Props> = ({
         </TouchableOpacity>
       </View>
 
-      <View className="px-5 pt-4 pb-3 gap-3">
-        <View className="flex-row gap-4">
-          <View className="flex-1 gap-0.5 items-start">
-            <Text className="text-white/30 text-[10px] tracking-[1px]">ORIGINAL</Text>
-            <Text className="text-white/60 text-sm">{formatBytes(photoSize)}</Text>
-          </View>
-          <View className="flex-1 gap-0.5 items-start">
-            <Text className="text-white/30 text-[10px] tracking-[1px]">COMPRESSED</Text>
-            <Text className="text-white/60 text-sm">{formatBytes(compressed.size)}</Text>
-          </View>
-          <View className="flex-1 gap-0.5 items-start">
-            <Text className="text-white/30 text-[10px] tracking-[1px]">SAVED</Text>
-            <Text className="text-green-400 text-sm font-semibold">{formatBytes(photoSize - compressed.size)}</Text>
-          </View>
+      <View className="flex-row px-4 pt-3 pb-3 gap-3">
+        <View className="flex-1 items-center">
+          <Text className="text-blue-300/80 text-xs font-bold tracking-[2px]">ORIGINAL</Text>
         </View>
-        <View className="flex-row gap-4">
-          <View className="flex-1 gap-0.5 items-start">
-            <Text className="text-white/30 text-[10px] tracking-[1px]">RESOLUTION</Text>
-            <Text className="text-white/60 text-sm">{photo.width} × {photo.height}</Text>
+        <View className="flex-1 items-center">
+          <Text className="text-blue-300/80 text-xs font-bold tracking-[2px]">COMPRESSED</Text>
+        </View>
+      </View>
+
+      <View className="px-5 py-0 flex-1 justify-center gap-6">
+        <View className="gap-3">
+          <View className="flex-row gap-4">
+            <View className="flex-1 gap-0.5">
+              <Text className="text-white/30 text-[10px] tracking-[1px]">ORIGINAL</Text>
+              <Text className="text-white/60 text-sm">{formatBytes(photoSize)}</Text>
+            </View>
+            <View className="flex-1 gap-0.5">
+              <Text className="text-white/30 text-[10px] tracking-[1px]">COMPRESSED</Text>
+              <Text className="text-white/60 text-sm">{formatBytes(compressed.size)}</Text>
+            </View>
+            <View className="flex-1 gap-0.5">
+              <Text className="text-white/30 text-[10px] tracking-[1px]">SAVED</Text>
+              <Text className="text-green-400 text-sm font-semibold">{formatBytes(photoSize - compressed.size)}</Text>
+            </View>
           </View>
-          <View className="flex-1 gap-0.5 items-start">
-            <Text className="text-white/30 text-[10px] tracking-[1px]">FORMAT</Text>
-            <Text className="text-white/60 text-sm">{getFormat(compressed.uri)}</Text>
-          </View>
-          <View className="flex-1 gap-0.5 items-start">
-            <Text className="text-white/30 text-[10px] tracking-[1px]">CAPTURED</Text>
-            <Text className="text-white/60 text-sm">
-              {capturedAt
-                ? `${capturedAt.toLocaleDateString([], { day: "2-digit", month: "short" })} ${capturedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false })}`
-                : "—"}
-            </Text>
+          <View className="flex-row gap-4">
+            <View className="flex-1 gap-0.5">
+              <Text className="text-white/30 text-[10px] tracking-[1px]">RESOLUTION</Text>
+              <Text className="text-white/60 text-sm">{photo.width} × {photo.height}</Text>
+            </View>
+            <View className="flex-1 gap-0.5">
+              <Text className="text-white/30 text-[10px] tracking-[1px]">FORMAT</Text>
+              <Text className="text-white/60 text-sm">{getFormat(compressed.uri)}</Text>
+            </View>
+            <View className="flex-1 gap-0.5">
+              <Text className="text-white/30 text-[10px] tracking-[1px]">CAPTURED</Text>
+              <Text className="text-white/60 text-sm">
+                {capturedAt
+                  ? `${capturedAt.toLocaleDateString([], { day: "2-digit", month: "short" })} ${capturedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false })}`
+                  : "—"}
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -103,7 +114,7 @@ const PhotoReviewScreen: FC<Props> = ({
         </View>
       </View>
 
-      <View className="px-5 pb-6 pt-2 mt-auto">
+      <View className="px-5 pb-6 pt-2">
         <View className="flex-row gap-3">
           <TouchableOpacity
             onPress={onRetake}
