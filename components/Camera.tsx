@@ -22,7 +22,19 @@ interface Props {
 const CameraScreen: FC<Props> = ({ cameraRef, isProcessing, onCapture, onCancel }) => {
   const [pitch, setPitch] = useState(90);
   const [roll, setRoll] = useState(90);
+  const [pictureSize, setPictureSize] = useState<string | undefined>(undefined);
   const wasAligned = useRef(false);
+
+  const handleCameraReady = async () => {
+    const sizes = await cameraRef.current?.getAvailablePictureSizesAsync();
+    if (!sizes?.length) return;
+    const largest = sizes.reduce((best, size) => {
+      const [w, h] = size.split("x").map(Number);
+      const [bw, bh] = best.split("x").map(Number);
+      return w * h > bw * bh ? size : best;
+    });
+    setPictureSize(largest);
+  };
 
   const isAligned =
     Math.abs(pitch) <= ORIENTATION_THRESHOLD && Math.abs(roll) <= ORIENTATION_THRESHOLD;
@@ -54,7 +66,7 @@ const CameraScreen: FC<Props> = ({ cameraRef, isProcessing, onCapture, onCancel 
     <View className="flex-1 bg-black">
       <StatusBar style="light" />
 
-      <CameraView ref={cameraRef} style={StyleSheet.absoluteFillObject} facing="back">
+      <CameraView ref={cameraRef} style={StyleSheet.absoluteFillObject} facing="back" pictureSize={pictureSize} onCameraReady={handleCameraReady}>
         <SafeAreaView edges={["top"]} className="bg-black/55">
           <View className="flex-row items-center px-5 py-3.5">
             <View className="w-[22px]" />
