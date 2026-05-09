@@ -46,8 +46,6 @@ const HomeScreen = () => {
       if (!captured) return;
 
       const originalSize = new File(captured.uri).size;
-      console.log("[Capture] PNG dimensions:", captured.width, "x", captured.height);
-      console.log("[Capture] PNG file size:", (originalSize / 1024 / 1024).toFixed(2), "MB");
 
       const compressedResult = await ImageManipulator.manipulateAsync(captured.uri, [], {
         compress: 0.5,
