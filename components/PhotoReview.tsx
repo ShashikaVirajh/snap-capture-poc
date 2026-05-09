@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { CameraCapturedPicture } from "expo-camera";
 import { StatusBar } from "expo-status-bar";
 import { styled } from "nativewind";
@@ -18,6 +19,7 @@ interface Props {
   onTabChange: (tab: "original" | "compressed") => void;
   onSave: () => void;
   onRetake: () => void;
+  onClose: () => void;
 }
 
 const PhotoReviewScreen: FC<Props> = ({
@@ -29,6 +31,7 @@ const PhotoReviewScreen: FC<Props> = ({
   onTabChange,
   onSave,
   onRetake,
+  onClose,
 }) => {
   const compressionRatio = ((1 - compressed.size / photoSize) * 100).toFixed(1);
   const activeUri = activeTab === "original" ? photo.uri : compressed.uri;
@@ -38,8 +41,14 @@ const PhotoReviewScreen: FC<Props> = ({
     <SafeAreaView className="flex-1 bg-[#0d0d0d]">
       <StatusBar style="light" />
 
-      <View className="items-center px-5 pt-4 pb-3">
-        <Text className="text-white text-[13px] font-bold tracking-[3px]">CAPTURE REVIEW</Text>
+      <View className="flex-row items-center px-5 pt-4 pb-3">
+        <View className="flex-1" />
+        <Text className="text-white text-[13px] font-bold tracking-[3px]">CAPTURE SUMMARY</Text>
+        <View className="flex-1 items-end">
+          <TouchableOpacity onPress={onClose} hitSlop={12}>
+            <Ionicons name="close" size={22} color="rgba(255,255,255,0.75)" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View className="flex-row border-t border-b border-white/8">
@@ -61,35 +70,37 @@ const PhotoReviewScreen: FC<Props> = ({
         </TouchableOpacity>
       </View>
 
-      <View className="flex-1 mx-4 my-3 rounded-2xl overflow-hidden bg-[#0d0d0d]">
+      <View className="flex-1 my-3 overflow-hidden bg-[#0d0d0d]">
         <Image
           source={{ uri: activeUri }}
           style={{ flex: 1, width: "100%" }}
-          resizeMode="contain"
+          resizeMode="cover"
         />
       </View>
 
       <View className="px-5 pb-3 gap-3">
         <View className="flex-row gap-4">
           <View className="flex-1 gap-1">
-            <Text className="text-white/40 text-[10px] tracking-[1px]">RESOLUTION</Text>
-            <Text className="text-white/70 text-sm">{photo.width} × {photo.height}</Text>
+            <Text className="text-white/40 text-[11px] tracking-[1px]">RESOLUTION</Text>
+            <Text className="text-white/70 text-base">{photo.width} × {photo.height}</Text>
           </View>
-          <View className="flex-1 gap-1">
-            <Text className="text-white/40 text-[10px] tracking-[1px]">FORMAT</Text>
-            <Text className="text-white/70 text-sm">{getFormat(compressed.uri)}</Text>
+          <View className="flex-1 gap-1 items-end">
+            <Text className="text-white/40 text-[11px] tracking-[1px]">FORMAT</Text>
+            <Text className="text-white/70 text-base">{getFormat(compressed.uri)}</Text>
           </View>
         </View>
         <View className="flex-row gap-4">
           <View className="flex-1 gap-1">
-            <Text className="text-white/40 text-[10px] tracking-[1px]">CAPTURED</Text>
-            <Text className="text-white/70 text-sm">
-              {capturedAt ? capturedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
+            <Text className="text-white/40 text-[11px] tracking-[1px]">CAPTURED</Text>
+            <Text className="text-white/70 text-base">
+              {capturedAt
+                ? `${capturedAt.toLocaleDateString([], { day: "2-digit", month: "short" })} ${capturedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+                : "—"}
             </Text>
           </View>
-          <View className="flex-1 gap-1">
-            <Text className="text-white/40 text-[10px] tracking-[1px]">SIZE</Text>
-            <Text className="text-white text-sm font-medium">{formatBytes(activeSize)}</Text>
+          <View className="flex-1 gap-1 items-end">
+            <Text className="text-white/40 text-[11px] tracking-[1px]">SIZE</Text>
+            <Text className="text-white text-base font-medium">{formatBytes(activeSize)}</Text>
           </View>
         </View>
 
@@ -105,7 +116,7 @@ const PhotoReviewScreen: FC<Props> = ({
         <View className="flex-row gap-3">
           <TouchableOpacity
             onPress={onRetake}
-            className="flex-1 py-4 rounded-2xl border border-white/15 items-center"
+            className="w-36 py-4 rounded-2xl border border-white/15 items-center"
             activeOpacity={0.75}
           >
             <Text className="text-white/70 font-bold tracking-[2px] text-[12px]">RETAKE</Text>

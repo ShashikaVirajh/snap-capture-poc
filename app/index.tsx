@@ -90,6 +90,15 @@ const HomeScreen = () => {
     setShowCamera(true);
   };
 
+  const handleClose = () => {
+    setPhoto(null);
+    setPhotoSize(null);
+    setCompressed(null);
+    setCapturedAt(null);
+    setActiveTab("original");
+    setShowCamera(false);
+  };
+
   if (showCamera) {
     return (
       <CameraScreen
@@ -112,6 +121,7 @@ const HomeScreen = () => {
         onTabChange={setActiveTab}
         onSave={handleSave}
         onRetake={handleRetake}
+        onClose={handleClose}
       />
     );
   }
