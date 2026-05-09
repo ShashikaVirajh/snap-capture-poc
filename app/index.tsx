@@ -28,7 +28,11 @@ const HomeScreen = () => {
 
   const handleOpenCamera = async () => {
     if (!permission?.granted) {
-      await requestPermission();
+      const { granted } = await requestPermission();
+      if (!granted) {
+        Alert.alert("Permission required", "Allow camera access to capture images.");
+        return;
+      }
     }
     setShowCamera(true);
   };
