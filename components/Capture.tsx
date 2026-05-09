@@ -54,6 +54,7 @@ const Capture: FC<Props> = ({ cameraRef, isProcessing, onCapture, onCancel }) =>
 
     wasAligned.current = false;
     DeviceMotion.setUpdateInterval(200);
+
     const subscription = DeviceMotion.addListener((data) => {
       const x = data.accelerationIncludingGravity?.x ?? 0;
       const y = data.accelerationIncludingGravity?.y ?? 0;
@@ -94,47 +95,47 @@ const Capture: FC<Props> = ({ cameraRef, isProcessing, onCapture, onCancel }) =>
       </SafeAreaView>
 
       {!isProcessing && (
-        <View className="items-center mt-3.5">
-          <View className={`px-4 py-2 rounded-full ${isAligned ? "bg-green-500/85" : "bg-red-500/85"}`}>
-            <Text className="text-white text-[11px] font-bold tracking-[1.5px]">
-              {isAligned ? "READY TO CAPTURE" : "ALIGN CAMERA"}
-            </Text>
-          </View>
-        </View>
-      )}
+        <>
+          <View className="flex-row items-center justify-between px-10 mt-1">
+            <View className="items-center w-14">
+              <Text className="text-white/45 text-[11px] font-bold tracking-[1.5px] mb-1">PITCH</Text>
+              <Text className={`text-2xl font-light ${Math.abs(pitch) <= ORIENTATION_THRESHOLD ? "text-green-400" : "text-red-400"}`}>
+                {Math.round(Math.abs(pitch))}°
+              </Text>
+            </View>
 
-      {!isProcessing && (
-        <View pointerEvents="none" style={StyleSheet.absoluteFillObject}>
-          <View className={`absolute w-8 h-8 top-[20%] left-[12%] border-t-[3px] border-l-[3px] ${bracketColor}`} />
-          <View className={`absolute w-8 h-8 top-[20%] right-[12%] border-t-[3px] border-r-[3px] ${bracketColor}`} />
-          <View className={`absolute w-8 h-8 bottom-[28%] left-[12%] border-b-[3px] border-l-[3px] ${bracketColor}`} />
-          <View className={`absolute w-8 h-8 bottom-[28%] right-[12%] border-b-[3px] border-r-[3px] ${bracketColor}`} />
-          <View style={{ position: "absolute", top: "50%", left: "50%", width: 18, height: StyleSheet.hairlineWidth, marginLeft: -9, backgroundColor: "rgba(255,255,255,0.4)" }} />
-          <View style={{ position: "absolute", top: "50%", left: "50%", width: StyleSheet.hairlineWidth, height: 18, marginTop: -9, backgroundColor: "rgba(255,255,255,0.4)" }} />
-        </View>
+            <View className={`px-4 py-2 rounded-full ${isAligned ? "bg-green-500/85" : "bg-red-500/85"}`}>
+              <Text className="text-white text-[11px] font-bold tracking-[1.5px]">
+                {isAligned ? "READY TO CAPTURE" : "ALIGN CAMERA"}
+              </Text>
+            </View>
+
+            <View className="items-center w-14">
+              <Text className="text-white/45 text-[11px] font-bold tracking-[1.5px] mb-1">ROLL</Text>
+              <Text className={`text-2xl font-light ${Math.abs(roll) <= ORIENTATION_THRESHOLD ? "text-green-400" : "text-red-400"}`}>
+                {Math.round(Math.abs(roll))}°
+              </Text>
+            </View>
+          </View>
+
+          <View pointerEvents="none" style={StyleSheet.absoluteFillObject}>
+            <View className={`absolute w-8 h-8 top-[22%] left-[12%] border-t-[3px] border-l-[3px] ${bracketColor}`} />
+            <View className={`absolute w-8 h-8 top-[22%] right-[12%] border-t-[3px] border-r-[3px] ${bracketColor}`} />
+            <View className={`absolute w-8 h-8 bottom-[15%] left-[12%] border-b-[3px] border-l-[3px] ${bracketColor}`} />
+            <View className={`absolute w-8 h-8 bottom-[15%] right-[12%] border-b-[3px] border-r-[3px] ${bracketColor}`} />
+            <View style={{ position: "absolute", top: "50%", left: "50%", width: 18, height: StyleSheet.hairlineWidth, marginLeft: -9, backgroundColor: "rgba(255,255,255,0.4)" }} />
+            <View style={{ position: "absolute", top: "50%", left: "50%", width: StyleSheet.hairlineWidth, height: 18, marginTop: -9, backgroundColor: "rgba(255,255,255,0.4)" }} />
+          </View>
+        </>
       )}
 
       <SafeAreaView edges={["bottom"]} className="absolute bottom-0 w-full bg-black/55">
-        <View className="flex-row items-center justify-between px-10 pt-6 pb-3">
-          <View className="items-center w-14">
-            <Text className="text-white/45 text-[9px] font-bold tracking-[1.5px] mb-1">PITCH</Text>
-            <Text className={`text-xl font-light ${Math.abs(pitch) <= ORIENTATION_THRESHOLD ? "text-green-400" : "text-red-400"}`}>
-              {Math.round(Math.abs(pitch))}°
-            </Text>
-          </View>
-
+        <View className="flex-row items-center justify-center px-10 pt-6 pb-3">
           <TouchableOpacity onPress={onCapture} disabled={!isAligned || isProcessing} activeOpacity={0.75}>
             <View className={`w-[78px] h-[78px] rounded-full border-[3px] items-center justify-center ${isAligned ? "border-white" : "border-white/25"}`}>
               <View className={`w-[62px] h-[62px] rounded-full ${isAligned ? "bg-white" : "bg-white/20"}`} />
             </View>
           </TouchableOpacity>
-
-          <View className="items-center w-14">
-            <Text className="text-white/45 text-[9px] font-bold tracking-[1.5px] mb-1">ROLL</Text>
-            <Text className={`text-xl font-light ${Math.abs(roll) <= ORIENTATION_THRESHOLD ? "text-green-400" : "text-red-400"}`}>
-              {Math.round(Math.abs(roll))}°
-            </Text>
-          </View>
         </View>
       </SafeAreaView>
 
