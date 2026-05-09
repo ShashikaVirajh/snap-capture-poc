@@ -112,16 +112,17 @@ The app will request the following permissions on first launch:
 ```
 app/
   _layout.tsx         # Root layout (expo-router)
-  index.tsx           # App entry — state management and screen routing
+  index.tsx           # App root — state management and component routing
 
 components/
-  Camera.tsx          # Camera viewfinder, orientation detection, alignment overlay
-  PhotoReview.tsx     # Capture summary — side-by-side images, details, save actions
+  Landing.tsx         # Entry screen — app intro and open camera button
+  Capture.tsx         # Camera viewfinder, orientation detection, alignment overlay
+  Review.tsx          # Capture summary — side-by-side images, details, save actions
 
 helpers/
   constants.ts        # Shared constants (ORIENTATION_THRESHOLD)
-  types.ts            # Shared TypeScript types (CompressedPhoto)
-  utils.ts            # Utility functions (formatBytes, getPitch, getRoll, getFormat)
+  types.ts            # Shared TypeScript types (TCompressedPhoto)
+  utils.ts            # Utility functions (formatFileSize, getImageFormat, getPitch, getRoll)
 ```
 
 ---
