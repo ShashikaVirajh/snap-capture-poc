@@ -15,7 +15,7 @@ interface Props {
   compressed: CompressedPhoto;
   photoSize: number;
   capturedAt: Date | null;
-  onSave: (type: "original" | "compressed") => void;
+  onSave: () => void;
   onRetake: () => void;
   onClose: () => void;
 }
@@ -125,7 +125,7 @@ const PhotoReviewScreen: FC<Props> = ({
             <Text className="text-white/70 font-bold tracking-[2px] text-[12px]">RETAKE</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => onSave("compressed")}
+            onPress={() => onSave()}
             style={{ flex: 3 }}
             className="py-4 rounded-2xl bg-white items-center"
             activeOpacity={0.85}

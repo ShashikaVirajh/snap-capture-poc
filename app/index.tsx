@@ -24,16 +24,19 @@ const HomeScreen = () => {
   const [capturedAt, setCapturedAt] = useState<Date | null>(null);
   const [permission, requestPermission] = useCameraPermissions();
   const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
+
   const cameraRef = useRef<CameraView>(null);
 
-  const handleOpenCamera = async () => {
+  const handleOpenCamera = async (): Promise<void> => {
     if (!permission?.granted) {
       const { granted } = await requestPermission();
+
       if (!granted) {
-        Alert.alert("Permission required", "Allow camera access to capture images.");
+        Alert.alert("Permission Required", "Allow camera access to capture images.");
         return;
       }
     }
+
     setShowCamera(true);
   };
 
@@ -73,21 +76,28 @@ const HomeScreen = () => {
     }
   };
 
-  const handleSave = async (type: "original" | "compressed") => {
+  const handleSave = async (): Promise<void> => {
     if (!mediaPermission?.granted) {
       const { granted } = await requestMediaPermission();
+
       if (!granted) {
-        Alert.alert("Permission required", "Allow access to Photos to save images.");
+        Alert.alert("Photos Access Required", "Please allow access to Photos in your device Settings to save images.");
         return;
       }
     }
-    const uriToSave = type === "original" ? photo?.uri : compressed?.uri;
-    if (!uriToSave) return;
-    await MediaLibrary.saveToLibraryAsync(uriToSave);
-    Alert.alert("Saved", "Image saved to Photos.");
+
+    const compressedPhoto = compressed?.uri;
+
+    if (!compressedPhoto) {
+      Alert.alert("Save Failed", "No image available to save. Please retake the photo.");
+      return;
+    };
+
+    await MediaLibrary.saveToLibraryAsync(compressedPhoto);
+    Alert.alert("Save Success", "Compressed image has been saved to your Photos library.");
   };
 
-  const handleRetake = () => {
+  const handleRetake = (): void => {
     setPhoto(null);
     setPhotoSize(null);
     setCompressed(null);
@@ -95,7 +105,7 @@ const HomeScreen = () => {
     setShowCamera(true);
   };
 
-  const handleClose = () => {
+  const handleClose = (): void => {
     setPhoto(null);
     setPhotoSize(null);
     setCompressed(null);
