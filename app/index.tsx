@@ -40,10 +40,13 @@ const HomeScreen = () => {
   const handleCapture = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     setIsProcessing(true);
+
     try {
       const captured = await cameraRef.current?.takePictureAsync({ quality: 1, imageType: "png" });
-      setCapturedAt(new Date());
+
       if (!captured) return;
+
+      setCapturedAt(new Date());
 
       const originalSize = new File(captured.uri).size;
 
