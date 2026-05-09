@@ -4,23 +4,18 @@ import { File } from "expo-file-system/next";
 import * as Haptics from "expo-haptics";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as MediaLibrary from "expo-media-library";
-import { DeviceMotion } from "expo-sensors";
 import { StatusBar } from "expo-status-bar";
 import { styled } from "nativewind";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 import CameraScreen from "../components/Camera";
 import PhotoReview from "../components/PhotoReview";
-import { ORIENTATION_THRESHOLD } from "../helpers/constants";
 import { CompressedPhoto } from "../helpers/types";
-import { getPitch, getRoll } from "../helpers/utils";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
 const HomeScreen = () => {
-  const [pitch, setPitch] = useState(90);
-  const [roll, setRoll] = useState(90);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
@@ -31,36 +26,11 @@ const HomeScreen = () => {
   const [permission, requestPermission] = useCameraPermissions();
   const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
   const cameraRef = useRef<CameraView>(null);
-  const wasAligned = useRef(false);
-
-  const isAligned =
-    Math.abs(pitch) <= ORIENTATION_THRESHOLD && Math.abs(roll) <= ORIENTATION_THRESHOLD;
-
-  useEffect(() => {
-    DeviceMotion.setUpdateInterval(200);
-    const subscription = DeviceMotion.addListener((data) => {
-      const x = data.accelerationIncludingGravity?.x ?? 0;
-      const y = data.accelerationIncludingGravity?.y ?? 0;
-      const z = data.accelerationIncludingGravity?.z ?? 0;
-      const newPitch = getPitch(y, z);
-      const newRoll = getRoll(x, z);
-      const aligned =
-        Math.abs(newPitch) <= ORIENTATION_THRESHOLD && Math.abs(newRoll) <= ORIENTATION_THRESHOLD;
-      if (aligned && !wasAligned.current) {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      }
-      wasAligned.current = aligned;
-      setPitch(newPitch);
-      setRoll(newRoll);
-    });
-    return () => subscription.remove();
-  }, []);
 
   const handleOpenCamera = async () => {
     if (!permission?.granted) {
       await requestPermission();
     }
-    wasAligned.current = false;
     setShowCamera(true);
   };
 
@@ -72,12 +42,10 @@ const HomeScreen = () => {
       setCapturedAt(new Date());
       if (!captured) return;
 
-      const [compressedResult] = await Promise.all([
-        ImageManipulator.manipulateAsync(captured.uri, [], {
-          compress: 0.5,
-          format: ImageManipulator.SaveFormat.JPEG,
-        }),
-      ]);
+      const compressedResult = await ImageManipulator.manipulateAsync(captured.uri, [], {
+        compress: 0.5,
+        format: ImageManipulator.SaveFormat.JPEG,
+      });
 
       const originalSize = new File(captured.uri).size;
       const compressedSize = new File(compressedResult.uri).size;
@@ -92,6 +60,8 @@ const HomeScreen = () => {
       setPhoto(captured);
       setActiveTab("original");
       setShowCamera(false);
+    } catch {
+      Alert.alert("Capture Failed", "Unable to take photo. Please try again.");
     } finally {
       setIsProcessing(false);
     }
@@ -124,9 +94,6 @@ const HomeScreen = () => {
     return (
       <CameraScreen
         cameraRef={cameraRef}
-        isAligned={isAligned}
-        pitch={pitch}
-        roll={roll}
         isProcessing={isProcessing}
         onCapture={handleCapture}
         onCancel={() => setShowCamera(false)}

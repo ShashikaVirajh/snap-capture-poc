@@ -1,31 +1,52 @@
 import { CameraView } from "expo-camera";
+import * as Haptics from "expo-haptics";
+import { DeviceMotion } from "expo-sensors";
 import { StatusBar } from "expo-status-bar";
 import { styled } from "nativewind";
-import { FC, RefObject } from "react";
+import { FC, RefObject, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
+import { ORIENTATION_THRESHOLD } from "../helpers/constants";
+import { getPitch, getRoll } from "../helpers/utils";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
 interface Props {
   cameraRef: RefObject<CameraView | null>;
-  isAligned: boolean;
-  pitch: number;
-  roll: number;
   isProcessing: boolean;
   onCapture: () => void;
   onCancel: () => void;
 }
 
-const CameraScreen: FC<Props> = ({
-  cameraRef,
-  isAligned,
-  pitch,
-  roll,
-  isProcessing,
-  onCapture,
-  onCancel,
-}) => {
+const CameraScreen: FC<Props> = ({ cameraRef, isProcessing, onCapture, onCancel }) => {
+  const [pitch, setPitch] = useState(90);
+  const [roll, setRoll] = useState(90);
+  const wasAligned = useRef(false);
+
+  const isAligned =
+    Math.abs(pitch) <= ORIENTATION_THRESHOLD && Math.abs(roll) <= ORIENTATION_THRESHOLD;
+
+  useEffect(() => {
+    wasAligned.current = false;
+    DeviceMotion.setUpdateInterval(200);
+    const subscription = DeviceMotion.addListener((data) => {
+      const x = data.accelerationIncludingGravity?.x ?? 0;
+      const y = data.accelerationIncludingGravity?.y ?? 0;
+      const z = data.accelerationIncludingGravity?.z ?? 0;
+      const newPitch = getPitch(y, z);
+      const newRoll = getRoll(x, z);
+      const aligned =
+        Math.abs(newPitch) <= ORIENTATION_THRESHOLD && Math.abs(newRoll) <= ORIENTATION_THRESHOLD;
+      if (aligned && !wasAligned.current) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+      wasAligned.current = aligned;
+      setPitch(newPitch);
+      setRoll(newRoll);
+    });
+    return () => subscription.remove();
+  }, []);
+
   const bracketColor = isAligned ? "border-green-500" : "border-red-500";
 
   return (
@@ -46,7 +67,6 @@ const CameraScreen: FC<Props> = ({
           </View>
         </SafeAreaView>
 
-
         <View className="items-center mt-3.5">
           <View className={`px-4 py-2 rounded-full ${isAligned ? "bg-green-500/85" : "bg-red-500/85"}`}>
             <Text className="text-white text-[11px] font-bold tracking-[1.5px]">
@@ -55,14 +75,11 @@ const CameraScreen: FC<Props> = ({
           </View>
         </View>
 
-
         <View pointerEvents="none" style={StyleSheet.absoluteFillObject}>
-
           <View className={`absolute w-8 h-8 top-[20%] left-[12%] border-t-[3px] border-l-[3px] ${bracketColor}`} />
           <View className={`absolute w-8 h-8 top-[20%] right-[12%] border-t-[3px] border-r-[3px] ${bracketColor}`} />
           <View className={`absolute w-8 h-8 bottom-[28%] left-[12%] border-b-[3px] border-l-[3px] ${bracketColor}`} />
           <View className={`absolute w-8 h-8 bottom-[28%] right-[12%] border-b-[3px] border-r-[3px] ${bracketColor}`} />
-
           <View style={{ position: "absolute", top: "50%", left: "50%", width: 18, height: StyleSheet.hairlineWidth, marginLeft: -9, backgroundColor: "rgba(255,255,255,0.4)" }} />
           <View style={{ position: "absolute", top: "50%", left: "50%", width: StyleSheet.hairlineWidth, height: 18, marginTop: -9, backgroundColor: "rgba(255,255,255,0.4)" }} />
         </View>
@@ -71,7 +88,7 @@ const CameraScreen: FC<Props> = ({
           <View className="flex-row items-center justify-between px-10 pt-6 pb-3">
             <View className="items-center w-14">
               <Text className="text-white/45 text-[9px] font-bold tracking-[1.5px] mb-1">PITCH</Text>
-              <Text className={`text-xl font-light ${Math.abs(pitch) <= 5 ? "text-green-400" : "text-red-400"}`}>
+              <Text className={`text-xl font-light ${Math.abs(pitch) <= ORIENTATION_THRESHOLD ? "text-green-400" : "text-red-400"}`}>
                 {Math.round(Math.abs(pitch))}°
               </Text>
             </View>
@@ -90,11 +107,10 @@ const CameraScreen: FC<Props> = ({
 
             <View className="items-center w-14">
               <Text className="text-white/45 text-[9px] font-bold tracking-[1.5px] mb-1">ROLL</Text>
-              <Text className={`text-xl font-light ${Math.abs(roll) <= 5 ? "text-green-400" : "text-red-400"}`}>
+              <Text className={`text-xl font-light ${Math.abs(roll) <= ORIENTATION_THRESHOLD ? "text-green-400" : "text-red-400"}`}>
                 {Math.round(Math.abs(roll))}°
               </Text>
             </View>
-
           </View>
           {isProcessing && (
             <Text className="text-white/50 text-[11px] tracking-[1.5px] text-center pb-2">Processing…</Text>
