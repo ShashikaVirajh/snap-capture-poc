@@ -23,7 +23,7 @@ All original requirements are met, plus additional polish:
 |---|---|
 | Orientation detection | DeviceMotion pitch + roll, both must be within ±5° |
 | Alignment feedback | Green/red corner brackets + status pill + haptic vibration on alignment |
-| Camera capture | Shutter locked until aligned, haptic on capture |
+| Camera capture | Shutter locked until aligned, haptic on capture, full-screen compressing state while processing |
 | Auto compression | Captured as PNG (lossless), compressed once to JPEG quality 50 — no double lossy compression |
 | Side-by-side review | Original and compressed shown together, tap either to fullscreen |
 | Capture summary | 6-field details grid — ORIGINAL · COMPRESSED · SAVED / RESOLUTION · FORMAT (PNG → JPEG) · CAPTURED |
