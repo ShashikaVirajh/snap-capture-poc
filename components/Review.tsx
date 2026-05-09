@@ -73,24 +73,29 @@ const Review: FC<Props> = ({
               <Text className="text-white/30 text-[10px] tracking-[1px]">ORIGINAL</Text>
               <Text className="text-white/60 text-sm">{formatFileSize(photoSize)}</Text>
             </View>
+
             <View className="flex-1 gap-0.5">
               <Text className="text-white/30 text-[10px] tracking-[1px]">COMPRESSED</Text>
               <Text className="text-white/60 text-sm">{formatFileSize(compressed.size)}</Text>
             </View>
+
             <View className="flex-1 gap-0.5">
               <Text className="text-white/30 text-[10px] tracking-[1px]">SAVED</Text>
               <Text className="text-green-400 text-sm font-semibold">{formatFileSize(photoSize - compressed.size)}</Text>
             </View>
           </View>
+
           <View className="flex-row gap-4">
             <View className="flex-1 gap-0.5">
               <Text className="text-white/30 text-[10px] tracking-[1px]">RESOLUTION</Text>
               <Text className="text-white/60 text-sm">{photo.width} × {photo.height}</Text>
             </View>
+
             <View className="flex-1 gap-0.5">
               <Text className="text-white/30 text-[10px] tracking-[1px]">FORMAT</Text>
               <Text className="text-white/60 text-sm">{getImageFormat(photo.uri)} → {getImageFormat(compressed.uri)}</Text>
             </View>
+
             <View className="flex-1 gap-0.5">
               <Text className="text-white/30 text-[10px] tracking-[1px]">CAPTURED</Text>
               <Text className="text-white/60 text-sm">
@@ -107,6 +112,7 @@ const Review: FC<Props> = ({
             <Text className="text-green-400/60 text-[10px] font-bold tracking-[1px]">STORAGE SAVED</Text>
             <Text className="text-green-400 text-2xl font-bold">{formatFileSize(photoSize - compressed.size)}</Text>
           </View>
+
           <View className="gap-0.5 items-end">
             <Text className="text-green-400/60 text-[10px] font-bold tracking-[1px]">REDUCTION</Text>
             <Text className="text-green-400 text-2xl font-bold">{compressionRatio}%</Text>
@@ -124,6 +130,7 @@ const Review: FC<Props> = ({
           >
             <Text className="text-white/70 font-bold tracking-[2px] text-[12px]">RETAKE</Text>
           </TouchableOpacity>
+
           <TouchableOpacity
             onPress={() => onSave()}
             style={{ flex: 3 }}
@@ -149,10 +156,12 @@ const Review: FC<Props> = ({
           >
             <Ionicons name="close-circle" size={32} color="rgba(255,255,255,0.8)" />
           </TouchableOpacity>
+
           <View className="absolute bottom-12 left-0 right-0 items-center gap-1">
             <Text className="text-white/50 text-[11px] tracking-[2px]">
               {fullscreen === "original" ? "ORIGINAL" : "COMPRESSED"}
             </Text>
+
             <Text className="text-white text-base font-medium">
               {fullscreen === "original" ? formatFileSize(photoSize) : formatFileSize(compressed.size)}
             </Text>

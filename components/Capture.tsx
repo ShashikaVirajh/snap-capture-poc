@@ -143,6 +143,7 @@ const Capture: FC<Props> = ({ cameraRef, isProcessing, onCapture, onCancel }) =>
           <View className="w-[72px] h-[72px] rounded-full border-[3px] border-green-500/50 items-center justify-center">
             <ActivityIndicator color="#22c55e" size="large" />
           </View>
+
           <Text className="text-green-400 text-sm font-semibold tracking-[1.5px]">Compressing…</Text>
         </View>
       )}
