@@ -6,7 +6,7 @@ import { FC, useState } from "react";
 import { Image, Modal, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 import { TCompressedPhoto } from "../helpers/types";
-import { formatBytes, getFormat } from "../helpers/utils";
+import { formatFileSize, getImageFormat } from "../helpers/utils";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
@@ -71,15 +71,15 @@ const Review: FC<Props> = ({
           <View className="flex-row gap-4">
             <View className="flex-1 gap-0.5">
               <Text className="text-white/30 text-[10px] tracking-[1px]">ORIGINAL</Text>
-              <Text className="text-white/60 text-sm">{formatBytes(photoSize)}</Text>
+              <Text className="text-white/60 text-sm">{formatFileSize(photoSize)}</Text>
             </View>
             <View className="flex-1 gap-0.5">
               <Text className="text-white/30 text-[10px] tracking-[1px]">COMPRESSED</Text>
-              <Text className="text-white/60 text-sm">{formatBytes(compressed.size)}</Text>
+              <Text className="text-white/60 text-sm">{formatFileSize(compressed.size)}</Text>
             </View>
             <View className="flex-1 gap-0.5">
               <Text className="text-white/30 text-[10px] tracking-[1px]">SAVED</Text>
-              <Text className="text-green-400 text-sm font-semibold">{formatBytes(photoSize - compressed.size)}</Text>
+              <Text className="text-green-400 text-sm font-semibold">{formatFileSize(photoSize - compressed.size)}</Text>
             </View>
           </View>
           <View className="flex-row gap-4">
@@ -89,7 +89,7 @@ const Review: FC<Props> = ({
             </View>
             <View className="flex-1 gap-0.5">
               <Text className="text-white/30 text-[10px] tracking-[1px]">FORMAT</Text>
-              <Text className="text-white/60 text-sm">{getFormat(photo.uri)} → {getFormat(compressed.uri)}</Text>
+              <Text className="text-white/60 text-sm">{getImageFormat(photo.uri)} → {getImageFormat(compressed.uri)}</Text>
             </View>
             <View className="flex-1 gap-0.5">
               <Text className="text-white/30 text-[10px] tracking-[1px]">CAPTURED</Text>
@@ -105,7 +105,7 @@ const Review: FC<Props> = ({
         <View className="rounded-2xl bg-green-500/10 border border-green-500/20 px-5 py-4 flex-row items-end justify-between">
           <View className="gap-0.5">
             <Text className="text-green-400/60 text-[10px] font-bold tracking-[1px]">STORAGE SAVED</Text>
-            <Text className="text-green-400 text-2xl font-bold">{formatBytes(photoSize - compressed.size)}</Text>
+            <Text className="text-green-400 text-2xl font-bold">{formatFileSize(photoSize - compressed.size)}</Text>
           </View>
           <View className="gap-0.5 items-end">
             <Text className="text-green-400/60 text-[10px] font-bold tracking-[1px]">REDUCTION</Text>
@@ -154,7 +154,7 @@ const Review: FC<Props> = ({
               {fullscreen === "original" ? "ORIGINAL" : "COMPRESSED"}
             </Text>
             <Text className="text-white text-base font-medium">
-              {fullscreen === "original" ? formatBytes(photoSize) : formatBytes(compressed.size)}
+              {fullscreen === "original" ? formatFileSize(photoSize) : formatFileSize(compressed.size)}
             </Text>
           </View>
         </View>

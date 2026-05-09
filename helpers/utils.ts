@@ -8,13 +8,13 @@ export const getRoll = (x: number, z: number): number => {
     return Math.atan2(x, Math.abs(z)) * (180 / Math.PI);
 };
 
-export const formatBytes = (bytes: number): string => {
+export const formatFileSize = (bytes: number): string => {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 };
 
-export const getFormat = (uri: string): string => {
+export const getImageFormat = (uri: string): string => {
     const ext = uri.split(".").pop()?.toLowerCase();
     if (ext === "heic" || ext === "heif") return "HEIF";
     if (ext === "png") return "PNG";
