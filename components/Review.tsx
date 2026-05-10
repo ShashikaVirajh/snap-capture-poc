@@ -3,10 +3,11 @@ import { CameraCapturedPicture } from "expo-camera";
 import { StatusBar } from "expo-status-bar";
 import { styled } from "nativewind";
 import { FC, useState } from "react";
-import { Image, Modal, Text, TouchableOpacity, View } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
-import { TCompressedPhoto } from "../helpers/types";
+import { TCompressedPhoto, TImageType } from "../helpers/types";
 import { formatFileSize, getImageFormat } from "../helpers/utils";
+import FullscreenImageModal from "./shared/FullscreenImageModal";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
@@ -29,10 +30,14 @@ const Review: FC<Props> = ({
   onRetake,
   onClose,
 }) => {
-  const [fullscreen, setFullscreen] = useState<"original" | "compressed" | null>(null);
+  const [fullscreen, setFullscreen] = useState<TImageType | null>(null);
 
   const storageSavedPercent = ((1 - compressedPhoto.size / originalPhotoSize) * 100).toFixed(1);
   const photoAspectRatio = originalPhoto.width / originalPhoto.height;
+
+  const handleFullscreenOpen = (type: TImageType): void => {
+    setFullscreen(type);
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-[#0d0d0d]">
@@ -41,6 +46,7 @@ const Review: FC<Props> = ({
       <View className="flex-row items-center px-5 pt-4 pb-3">
         <View className="flex-1" />
         <Text className="text-white text-[13px] font-bold tracking-[3px]">CAPTURE SUMMARY</Text>
+
         <View className="flex-1 items-end">
           <TouchableOpacity onPress={onClose} hitSlop={12}>
             <Ionicons name="close" size={22} color="#ffffffbf" />
@@ -49,11 +55,11 @@ const Review: FC<Props> = ({
       </View>
 
       <View className="flex-row gap-3 px-4 mt-3">
-        <TouchableOpacity style={{ flex: 1, aspectRatio: photoAspectRatio, borderRadius: 12, overflow: "hidden", backgroundColor: "#0d0d0d" }} activeOpacity={0.85} onPress={() => setFullscreen("original")}>
+        <TouchableOpacity style={{ flex: 1, aspectRatio: photoAspectRatio, borderRadius: 12, overflow: "hidden", backgroundColor: "#0d0d0d" }} activeOpacity={0.85} onPress={() => handleFullscreenOpen("original")}>
           <Image source={{ uri: originalPhoto.uri }} style={{ flex: 1 }} resizeMode="cover" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={{ flex: 1, aspectRatio: photoAspectRatio, borderRadius: 12, overflow: "hidden", backgroundColor: "#0d0d0d" }} activeOpacity={0.85} onPress={() => setFullscreen("compressed")}>
+        <TouchableOpacity style={{ flex: 1, aspectRatio: photoAspectRatio, borderRadius: 12, overflow: "hidden", backgroundColor: "#0d0d0d" }} activeOpacity={0.85} onPress={() => handleFullscreenOpen("compressed")}>
           <Image source={{ uri: compressedPhoto.uri }} style={{ flex: 1 }} resizeMode="cover" />
         </TouchableOpacity>
       </View>
@@ -144,32 +150,14 @@ const Review: FC<Props> = ({
         </View>
       </View>
 
-      <Modal visible={fullscreen !== null} transparent animationType="fade">
-        <View className="flex-1 bg-black">
-          <Image
-            source={{ uri: fullscreen === "original" ? originalPhoto.uri : compressedPhoto.uri }}
-            style={{ flex: 1, width: "100%" }}
-            resizeMode="contain"
-          />
-          <TouchableOpacity
-            onPress={() => setFullscreen(null)}
-            className="absolute top-14 right-5"
-            hitSlop={12}
-          >
-            <Ionicons name="close-circle" size={32} color="#ffffffcc" />
-          </TouchableOpacity>
-
-          <View className="absolute bottom-12 left-0 right-0 items-center gap-1">
-            <Text className="text-white/50 text-[11px] tracking-[2px]">
-              {fullscreen === "original" ? "ORIGINAL" : "COMPRESSED"}
-            </Text>
-
-            <Text className="text-white text-base font-medium">
-              {fullscreen === "original" ? formatFileSize(originalPhotoSize) : formatFileSize(compressedPhoto.size)}
-            </Text>
-          </View>
-        </View>
-      </Modal>
+      {fullscreen !== null && (
+        <FullscreenImageModal
+          uri={fullscreen === "original" ? originalPhoto.uri : compressedPhoto.uri}
+          label={fullscreen === "original" ? "ORIGINAL" : "COMPRESSED"}
+          fileSize={fullscreen === "original" ? formatFileSize(originalPhotoSize) : formatFileSize(compressedPhoto.size)}
+          onClose={() => setFullscreen(null)}
+        />
+      )}
 
     </SafeAreaView>
   );
