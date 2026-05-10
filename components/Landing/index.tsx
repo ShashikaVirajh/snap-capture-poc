@@ -4,6 +4,7 @@ import { styled } from "nativewind";
 import { FC } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
+import Chip from "../shared/Chip";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
@@ -35,17 +36,9 @@ const Landing: FC<Props> = ({ onOpenCamera }) => {
         </Text>
 
         <View className="flex-row gap-2">
-          <View className="px-3 py-1.5 rounded-full border border-white/10">
-            <Text className="text-white/40 text-[10px] tracking-[1px]">ALIGNMENT</Text>
-          </View>
-
-          <View className="px-3 py-1.5 rounded-full border border-white/10">
-            <Text className="text-white/40 text-[10px] tracking-[1px]">COMPRESSION</Text>
-          </View>
-
-          <View className="px-3 py-1.5 rounded-full border border-white/10">
-            <Text className="text-white/40 text-[10px] tracking-[1px]">HAPTICS</Text>
-          </View>
+          <Chip label="ALIGNMENT" />
+          <Chip label="COMPRESSION" />
+          <Chip label="HAPTICS" />
         </View>
       </View>
 
