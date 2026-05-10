@@ -68,6 +68,18 @@ A QR code will appear in the terminal. Open the iPhone camera app, point it at t
 
 ---
 
+## Troubleshooting
+
+If you encounter Metro bundler errors or module resolution issues, do a clean install:
+
+```bash
+rm -rf node_modules package-lock.json
+npm install
+npx expo start --clear
+```
+
+---
+
 ## Device Settings
 
 ### Haptic feedback
@@ -94,7 +106,7 @@ The app will request the following permissions on first launch:
 
 ## How to Use
 
-1. Tap **OPEN CAMERA** on the home screen
+1. Tap **OPEN CAMERA** on the landing screen
 2. Hold the phone directly above the surgical tray, face down
 3. Watch the pitch and roll indicators — both must reach green (within ±5°)
 4. A haptic vibration confirms alignment — the shutter unlocks automatically
@@ -111,18 +123,21 @@ The app will request the following permissions on first launch:
 
 ```
 app/
-  _layout.tsx         # Root layout (expo-router)
-  index.tsx           # App root — state management and component routing
+  _layout.tsx                        # Root layout (expo-router)
+  index.tsx                          # App root — state management and component routing
 
 components/
-  Landing.tsx         # Entry screen — app intro and open camera button
-  Capture.tsx         # Camera viewfinder, orientation detection, alignment overlay
-  Review.tsx          # Capture summary — side-by-side images, details, save actions
+  Landing.tsx                        # Entry screen — app intro and open camera button
+  Capture.tsx                        # Camera viewfinder, orientation detection, alignment overlay
+  Review.tsx                         # Capture summary — side-by-side images, details, save actions
+  shared/
+    FullscreenImageModal.tsx         # Reusable fullscreen image viewer modal
 
 helpers/
   constants.ts        # Shared constants (ORIENTATION_THRESHOLD)
-  types.ts            # Shared TypeScript types (TCompressedPhoto)
-  utils.ts            # Utility functions (formatFileSize, getImageFormat, getPitch, getRoll)
+  types.ts            # Shared TypeScript types (TCompressedPhoto, TImageType)
+  utils.ts            # Utility functions (isPitchAligned, isRollAligned, isDeviceAligned,
+                      #   getLargestPictureSize, getPitch, getRoll, formatFileSize, getImageFormat)
 ```
 
 ---
@@ -141,6 +156,17 @@ helpers/
 | Haptics | expo-haptics |
 | Media Library | expo-media-library |
 | Icons | @expo/vector-icons (Ionicons) |
+
+---
+
+## Future Improvements
+
+| Improvement | Details |
+|---|---|
+| Auto capture | Automatically trigger shutter when device is aligned — no manual tap needed |
+| Configurable threshold | Allow alignment tolerance to be adjusted beyond the current ±5° |
+| Configurable compression | Expose JPEG quality setting instead of hardcoded 50% |
+| Unit tests | Utility functions are already extracted and ready for test coverage |
 
 ---
 
