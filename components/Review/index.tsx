@@ -5,9 +5,9 @@ import { styled } from "nativewind";
 import { FC, useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
-import { TCompressedPhoto, TImageType } from "../helpers/types";
-import { formatFileSize, getImageFormat } from "../helpers/utils";
-import FullscreenImageModal from "./shared/FullscreenImageModal";
+import { TCompressedPhoto, TImageType } from "../../helpers/types";
+import { formatFileSize, getImageFormat } from "../../helpers/utils";
+import FullscreenImageModal from "../shared/FullscreenImageModal";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
