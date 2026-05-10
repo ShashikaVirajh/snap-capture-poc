@@ -11,9 +11,9 @@ import { formatFileSize, getImageFormat } from "../helpers/utils";
 const SafeAreaView = styled(RNSafeAreaView);
 
 interface Props {
-  photo: CameraCapturedPicture;
-  compressed: TCompressedPhoto;
-  photoSize: number;
+  originalPhoto: CameraCapturedPicture;
+  compressedPhoto: TCompressedPhoto;
+  originalPhotoSize: number;
   capturedAt: Date | null;
   onSave: () => void;
   onRetake: () => void;
@@ -21,17 +21,18 @@ interface Props {
 }
 
 const Review: FC<Props> = ({
-  photo,
-  compressed,
-  photoSize,
+  originalPhoto,
+  compressedPhoto,
+  originalPhotoSize,
   capturedAt,
   onSave,
   onRetake,
   onClose,
 }) => {
   const [fullscreen, setFullscreen] = useState<"original" | "compressed" | null>(null);
-  const compressionRatio = ((1 - compressed.size / photoSize) * 100).toFixed(1);
-  const imageAspectRatio = photo.width / photo.height;
+
+  const storageSavedPercent = ((1 - compressedPhoto.size / originalPhotoSize) * 100).toFixed(1);
+  const photoAspectRatio = originalPhoto.width / originalPhoto.height;
 
   return (
     <SafeAreaView className="flex-1 bg-[#0d0d0d]">
@@ -48,12 +49,12 @@ const Review: FC<Props> = ({
       </View>
 
       <View className="flex-row gap-3 px-4 mt-3">
-        <TouchableOpacity style={{ flex: 1, aspectRatio: imageAspectRatio, borderRadius: 12, overflow: "hidden", backgroundColor: "#0d0d0d" }} activeOpacity={0.85} onPress={() => setFullscreen("original")}>
-          <Image source={{ uri: photo.uri }} style={{ flex: 1 }} resizeMode="cover" />
+        <TouchableOpacity style={{ flex: 1, aspectRatio: photoAspectRatio, borderRadius: 12, overflow: "hidden", backgroundColor: "#0d0d0d" }} activeOpacity={0.85} onPress={() => setFullscreen("original")}>
+          <Image source={{ uri: originalPhoto.uri }} style={{ flex: 1 }} resizeMode="cover" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={{ flex: 1, aspectRatio: imageAspectRatio, borderRadius: 12, overflow: "hidden", backgroundColor: "#0d0d0d" }} activeOpacity={0.85} onPress={() => setFullscreen("compressed")}>
-          <Image source={{ uri: compressed.uri }} style={{ flex: 1 }} resizeMode="cover" />
+        <TouchableOpacity style={{ flex: 1, aspectRatio: photoAspectRatio, borderRadius: 12, overflow: "hidden", backgroundColor: "#0d0d0d" }} activeOpacity={0.85} onPress={() => setFullscreen("compressed")}>
+          <Image source={{ uri: compressedPhoto.uri }} style={{ flex: 1 }} resizeMode="cover" />
         </TouchableOpacity>
       </View>
 
@@ -61,6 +62,7 @@ const Review: FC<Props> = ({
         <View className="flex-1 items-center">
           <Text className="text-blue-300/80 text-xs font-bold tracking-[2px]">ORIGINAL</Text>
         </View>
+
         <View className="flex-1 items-center">
           <Text className="text-blue-300/80 text-xs font-bold tracking-[2px]">COMPRESSED</Text>
         </View>
@@ -71,29 +73,29 @@ const Review: FC<Props> = ({
           <View className="flex-row gap-4">
             <View className="flex-1 gap-0.5">
               <Text className="text-white/30 text-[10px] tracking-[1px]">ORIGINAL</Text>
-              <Text className="text-white/60 text-sm">{formatFileSize(photoSize)}</Text>
+              <Text className="text-white/60 text-sm">{formatFileSize(originalPhotoSize)}</Text>
             </View>
 
             <View className="flex-1 gap-0.5">
               <Text className="text-white/30 text-[10px] tracking-[1px]">COMPRESSED</Text>
-              <Text className="text-white/60 text-sm">{formatFileSize(compressed.size)}</Text>
+              <Text className="text-white/60 text-sm">{formatFileSize(compressedPhoto.size)}</Text>
             </View>
 
             <View className="flex-1 gap-0.5">
               <Text className="text-white/30 text-[10px] tracking-[1px]">SAVED</Text>
-              <Text className="text-green-400 text-sm font-semibold">{formatFileSize(photoSize - compressed.size)}</Text>
+              <Text className="text-green-400 text-sm font-semibold">{formatFileSize(originalPhotoSize - compressedPhoto.size)}</Text>
             </View>
           </View>
 
           <View className="flex-row gap-4">
             <View className="flex-1 gap-0.5">
               <Text className="text-white/30 text-[10px] tracking-[1px]">RESOLUTION</Text>
-              <Text className="text-white/60 text-sm">{photo.width} × {photo.height}</Text>
+              <Text className="text-white/60 text-sm">{originalPhoto.width} × {originalPhoto.height}</Text>
             </View>
 
             <View className="flex-1 gap-0.5">
               <Text className="text-white/30 text-[10px] tracking-[1px]">FORMAT</Text>
-              <Text className="text-white/60 text-sm">{getImageFormat(photo.uri)} → {getImageFormat(compressed.uri)}</Text>
+              <Text className="text-white/60 text-sm">{getImageFormat(originalPhoto.uri)} → {getImageFormat(compressedPhoto.uri)}</Text>
             </View>
 
             <View className="flex-1 gap-0.5">
@@ -110,12 +112,12 @@ const Review: FC<Props> = ({
         <View className="rounded-2xl bg-green-500/10 border border-green-500/20 px-5 py-4 flex-row items-end justify-between">
           <View className="gap-0.5">
             <Text className="text-green-400/60 text-[10px] font-bold tracking-[1px]">STORAGE SAVED</Text>
-            <Text className="text-green-400 text-2xl font-bold">{formatFileSize(photoSize - compressed.size)}</Text>
+            <Text className="text-green-400 text-2xl font-bold">{formatFileSize(originalPhotoSize - compressedPhoto.size)}</Text>
           </View>
 
           <View className="gap-0.5 items-end">
             <Text className="text-green-400/60 text-[10px] font-bold tracking-[1px]">REDUCTION</Text>
-            <Text className="text-green-400 text-2xl font-bold">{compressionRatio}%</Text>
+            <Text className="text-green-400 text-2xl font-bold">{storageSavedPercent}%</Text>
           </View>
         </View>
       </View>
@@ -145,7 +147,7 @@ const Review: FC<Props> = ({
       <Modal visible={fullscreen !== null} transparent animationType="fade">
         <View className="flex-1 bg-black">
           <Image
-            source={{ uri: fullscreen === "original" ? photo.uri : compressed.uri }}
+            source={{ uri: fullscreen === "original" ? originalPhoto.uri : compressedPhoto.uri }}
             style={{ flex: 1, width: "100%" }}
             resizeMode="contain"
           />
@@ -163,7 +165,7 @@ const Review: FC<Props> = ({
             </Text>
 
             <Text className="text-white text-base font-medium">
-              {fullscreen === "original" ? formatFileSize(photoSize) : formatFileSize(compressed.size)}
+              {fullscreen === "original" ? formatFileSize(originalPhotoSize) : formatFileSize(compressedPhoto.size)}
             </Text>
           </View>
         </View>
