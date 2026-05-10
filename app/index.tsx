@@ -36,7 +36,7 @@ const App = () => {
     setShowCamera(true);
   };
 
-  const handleCapture = async () => {
+  const handleCapture = async (): Promise<void> => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
 
     setIsCompressing(true);

@@ -12,7 +12,9 @@ export const isDeviceAligned = (pitch: number, roll: number): boolean => {
     return isPitchAligned(pitch) && isRollAligned(roll);
 };
 
-export const getLargestPictureSize = (sizes: string[]): string => {
+export const getLargestPictureSize = (sizes: string[]): string | undefined => {
+    if (!sizes.length) return undefined;
+
     return sizes.reduce((largestSize, currentSize) => {
         const [currentWidth, currentHeight] = currentSize.split("x").map(Number);
         const [largestWidth, largestHeight] = largestSize.split("x").map(Number);

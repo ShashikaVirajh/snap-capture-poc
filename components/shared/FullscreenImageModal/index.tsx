@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { FC } from "react";
 import { Image, Modal, Text, TouchableOpacity, View } from "react-native";
-import { TImageType } from "../../helpers/types";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { TImageType } from "../../../helpers/types";
 
 interface Props {
   uri: string;
@@ -11,12 +12,18 @@ interface Props {
 }
 
 const FullscreenImageModal: FC<Props> = ({ uri, label, fileSize, onClose }) => {
+  const insets = useSafeAreaInsets();
+
   return (
     <Modal visible={true} transparent animationType="fade">
       <View className="flex-1 bg-black">
         <Image source={{ uri }} style={{ flex: 1, width: "100%" }} resizeMode="contain" />
 
-        <TouchableOpacity onPress={onClose} className="absolute top-14 right-5" hitSlop={12}>
+        <TouchableOpacity
+          onPress={onClose}
+          style={{ position: "absolute", top: insets.top + 12, right: 20 }}
+          hitSlop={12}
+        >
           <Ionicons name="close-circle" size={32} color="#ffffffcc" />
         </TouchableOpacity>
 
