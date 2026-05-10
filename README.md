@@ -124,14 +124,38 @@ The app will request the following permissions on first launch:
 ```
 app/
   _layout.tsx                        # Root layout (expo-router)
-  index.tsx                          # App root — state management and component routing
+  index.tsx                          # App root — state management and screen routing
 
 components/
-  Landing.tsx                        # Entry screen — app intro and open camera button
-  Capture.tsx                        # Camera viewfinder, orientation detection, alignment overlay
-  Review.tsx                         # Capture summary — side-by-side images, details, save actions
+  Landing/
+    index.tsx                        # Entry screen — app intro and open camera button
+  Capture/
+    index.tsx                        # Camera viewfinder, orientation detection, capture logic
+    AlignmentControls/
+      index.tsx                      # Pitch/roll indicators, alignment brackets, status pill
+    CaptureButton/
+      index.tsx                      # Shutter button — locked until device is aligned
+    CaptureHeader/
+      index.tsx                      # Top bar with title and close button
+  Review/
+    index.tsx                        # Capture summary screen — composes sub-components
+    PhotoComparison/
+      index.tsx                      # Side-by-side original and compressed image thumbnails
+    CaptureDetails/
+      index.tsx                      # 6-field details grid (size, resolution, format, timestamp)
+    StorageSavedCard/
+      index.tsx                      # Highlights storage saved in bytes and percentage
+    ReviewActions/
+      index.tsx                      # Retake and Save Compressed action buttons
+    ReviewHeader/
+      index.tsx                      # Top bar with title and close button
   shared/
-    FullscreenImageModal.tsx         # Reusable fullscreen image viewer modal
+    Chip/
+      index.tsx                      # Small label badge used on the landing screen
+    LoadingOverlay/
+      index.tsx                      # Full-screen loading state with spinner and message
+    FullscreenImageModal/
+      index.tsx                      # Fullscreen image viewer modal with safe-area-aware close button
 
 helpers/
   constants.ts        # Shared constants (ORIENTATION_THRESHOLD)
