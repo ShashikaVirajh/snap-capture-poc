@@ -115,7 +115,7 @@ The app will request the following permissions on first launch:
    - Tap either image to view fullscreen
    - Check the details grid and storage saved card
 7. Tap **SAVE COMPRESSED** to save to Photos, or **RETAKE** to go back to camera
-8. Tap **✕** to discard and return to the home screen
+8. Tap **✕** to discard and return to the landing screen
 
 ---
 
