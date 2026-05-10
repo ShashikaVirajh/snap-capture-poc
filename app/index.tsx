@@ -92,7 +92,7 @@ const App = () => {
     if (!compressedUri) {
       Alert.alert("Save Failed", "No image available to save. Please retake the photo.");
       return;
-    };
+    }
 
     try {
       await MediaLibrary.saveToLibraryAsync(compressedUri);
@@ -102,23 +102,20 @@ const App = () => {
     }
   };
 
-  const handleRetake = (): void => {
+  const resetCaptureState = (): void => {
     setOriginalPhoto(null);
     setOriginalPhotoSize(null);
     setCompressedPhoto(null);
     setCapturedAt(null);
+  };
+
+  const handleRetake = (): void => {
+    resetCaptureState();
     setShowCamera(true);
   };
 
-  const handleCancelCamera = (): void => {
-    setShowCamera(false);
-  };
-
   const handleClose = (): void => {
-    setOriginalPhoto(null);
-    setOriginalPhotoSize(null);
-    setCompressedPhoto(null);
-    setCapturedAt(null);
+    resetCaptureState();
     setShowCamera(false);
   };
 
@@ -129,7 +126,7 @@ const App = () => {
         cameraRef={cameraRef}
         isCompressing={isCompressing}
         onCapture={handleCapture}
-        onCancel={handleCancelCamera}
+        onClose={handleClose}
       />
     );
   }

@@ -7,10 +7,10 @@ import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 const SafeAreaView = styled(RNSafeAreaView);
 
 interface Props {
-  onCancel: () => void;
+  onClose: () => void;
 }
 
-const CaptureHeader: FC<Props> = ({ onCancel }) => {
+const CaptureHeader: FC<Props> = ({ onClose }) => {
   return (
     <SafeAreaView edges={["top"]} className="bg-black/55">
       <View className="flex-row items-center px-5 py-3.5">
@@ -21,7 +21,7 @@ const CaptureHeader: FC<Props> = ({ onCancel }) => {
           <Text className="text-white/45 text-[10px] tracking-[4px] mt-0.5">CAPTURE</Text>
         </View>
 
-        <TouchableOpacity onPress={onCancel} hitSlop={12}>
+        <TouchableOpacity onPress={onClose} hitSlop={12}>
           <Ionicons name="close" size={22} color="#ffffffbf" />
         </TouchableOpacity>
       </View>

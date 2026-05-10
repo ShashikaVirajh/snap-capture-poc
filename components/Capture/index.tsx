@@ -13,10 +13,10 @@ interface Props {
   cameraRef: RefObject<CameraView | null>;
   isCompressing: boolean;
   onCapture: () => void;
-  onCancel: () => void;
+  onClose: () => void;
 }
 
-const Capture: FC<Props> = ({ cameraRef, isCompressing, onCapture, onCancel }) => {
+const Capture: FC<Props> = ({ cameraRef, isCompressing, onCapture, onClose }) => {
   const [pitch, setPitch] = useState(90);
   const [roll, setRoll] = useState(90);
   const [pictureSize, setPictureSize] = useState<string | undefined>(undefined);
@@ -79,7 +79,7 @@ const Capture: FC<Props> = ({ cameraRef, isCompressing, onCapture, onCancel }) =
 
       <CameraView ref={cameraRef} style={StyleSheet.absoluteFillObject} facing="back" pictureSize={pictureSize} onCameraReady={handleCameraReady} />
 
-      <CaptureHeader onCancel={onCancel} />
+      <CaptureHeader onClose={onClose} />
 
       {!isCompressing && <AlignmentControls pitch={pitch} roll={roll} deviceAligned={deviceAligned} />}
 
