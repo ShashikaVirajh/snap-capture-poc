@@ -42,7 +42,7 @@ const Review: FC<Props> = ({
         <Text className="text-white text-[13px] font-bold tracking-[3px]">CAPTURE SUMMARY</Text>
         <View className="flex-1 items-end">
           <TouchableOpacity onPress={onClose} hitSlop={12}>
-            <Ionicons name="close" size={22} color="rgba(255,255,255,0.75)" />
+            <Ionicons name="close" size={22} color="#ffffffbf" />
           </TouchableOpacity>
         </View>
       </View>
@@ -154,7 +154,7 @@ const Review: FC<Props> = ({
             className="absolute top-14 right-5"
             hitSlop={12}
           >
-            <Ionicons name="close-circle" size={32} color="rgba(255,255,255,0.8)" />
+            <Ionicons name="close-circle" size={32} color="#ffffffcc" />
           </TouchableOpacity>
 
           <View className="absolute bottom-12 left-0 right-0 items-center gap-1">

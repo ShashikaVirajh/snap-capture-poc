@@ -1,7 +1,15 @@
 import { ORIENTATION_THRESHOLD } from "./constants";
 
-export const isWithinOrientationThreshold = (pitch: number, roll: number): boolean => {
-    return Math.abs(pitch) <= ORIENTATION_THRESHOLD && Math.abs(roll) <= ORIENTATION_THRESHOLD;
+export const isPitchAligned = (pitch: number): boolean => {
+    return Math.abs(pitch) <= ORIENTATION_THRESHOLD;
+};
+
+export const isRollAligned = (roll: number): boolean => {
+    return Math.abs(roll) <= ORIENTATION_THRESHOLD;
+};
+
+export const isDeviceAligned = (pitch: number, roll: number): boolean => {
+    return isPitchAligned(pitch) && isRollAligned(roll);
 };
 
 export const getLargestPictureSize = (sizes: string[]): string => {

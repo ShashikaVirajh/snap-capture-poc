@@ -7,7 +7,7 @@ import { styled } from "nativewind";
 import { FC, RefObject, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
-import { getLargestPictureSize, getPitch, getRoll, isWithinOrientationThreshold } from "../helpers/utils";
+import { getLargestPictureSize, getPitch, getRoll, isDeviceAligned, isPitchAligned, isRollAligned } from "../helpers/utils";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
@@ -24,10 +24,8 @@ const Capture: FC<Props> = ({ cameraRef, isCompressing, onCapture, onCancel }) =
   const [pictureSize, setPictureSize] = useState<string | undefined>(undefined);
   const prevDeviceAligned = useRef(false);
 
-
-  const isDeviceAligned = isWithinOrientationThreshold(pitch, roll);
-  const bracketColor = isDeviceAligned ? "border-green-500" : "border-red-500";
-
+  const deviceAligned = isDeviceAligned(pitch, roll);
+  const bracketColor = deviceAligned ? "border-green-500" : "border-red-500";
 
   useEffect(() => {
     if (isCompressing) return;
@@ -43,7 +41,7 @@ const Capture: FC<Props> = ({ cameraRef, isCompressing, onCapture, onCancel }) =
       const newPitch = getPitch(y, z);
       const newRoll = getRoll(x, z);
 
-      const isDeviceNowAligned = isWithinOrientationThreshold(newPitch, newRoll);
+      const isDeviceNowAligned = isDeviceAligned(newPitch, newRoll);
 
       if (isDeviceNowAligned && !prevDeviceAligned.current) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -87,12 +85,14 @@ const Capture: FC<Props> = ({ cameraRef, isCompressing, onCapture, onCancel }) =
       <SafeAreaView edges={["top"]} className="bg-black/55">
         <View className="flex-row items-center px-5 py-3.5">
           <View className="w-[22px]" />
+
           <View className="flex-1 items-center">
             <Text className="text-white text-[13px] font-bold tracking-[3px]">SURGICAL TRAY</Text>
             <Text className="text-white/45 text-[10px] tracking-[4px] mt-0.5">CAPTURE</Text>
           </View>
+
           <TouchableOpacity onPress={onCancel} hitSlop={12}>
-            <Ionicons name="close" size={22} color="rgba(255,255,255,0.75)" />
+            <Ionicons name="close" size={22} color="#ffffffbf" />
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -102,20 +102,20 @@ const Capture: FC<Props> = ({ cameraRef, isCompressing, onCapture, onCancel }) =
           <View className="flex-row items-center justify-between px-10 mt-1">
             <View className="items-center w-14">
               <Text className="text-white/45 text-[11px] font-bold tracking-[1.5px] mb-1">PITCH</Text>
-              <Text className={`text-2xl font-light ${Math.abs(pitch) <= ORIENTATION_THRESHOLD ? "text-green-400" : "text-red-400"}`}>
+              <Text className={`text-2xl font-light ${isPitchAligned(pitch) ? "text-green-400" : "text-red-400"}`}>
                 {Math.round(Math.abs(pitch))}°
               </Text>
             </View>
 
-            <View className={`px-4 py-2 rounded-full ${isDeviceAligned ? "bg-green-500/85" : "bg-red-500/85"}`}>
+            <View className={`px-4 py-2 rounded-full ${deviceAligned ? "bg-green-500/85" : "bg-red-500/85"}`}>
               <Text className="text-white text-[11px] font-bold tracking-[1.5px]">
-                {isDeviceAligned ? "READY TO CAPTURE" : "ALIGN CAMERA"}
+                {deviceAligned ? "READY TO CAPTURE" : "ALIGN CAMERA"}
               </Text>
             </View>
 
             <View className="items-center w-14">
               <Text className="text-white/45 text-[11px] font-bold tracking-[1.5px] mb-1">ROLL</Text>
-              <Text className={`text-2xl font-light ${Math.abs(roll) <= ORIENTATION_THRESHOLD ? "text-green-400" : "text-red-400"}`}>
+              <Text className={`text-2xl font-light ${isRollAligned(roll) ? "text-green-400" : "text-red-400"}`}>
                 {Math.round(Math.abs(roll))}°
               </Text>
             </View>
@@ -134,9 +134,9 @@ const Capture: FC<Props> = ({ cameraRef, isCompressing, onCapture, onCancel }) =
 
       <SafeAreaView edges={["bottom"]} className="absolute bottom-0 w-full bg-black/55">
         <View className="flex-row items-center justify-center px-10 pt-6 pb-3">
-          <TouchableOpacity onPress={onCapture} disabled={!isDeviceAligned || isCompressing} activeOpacity={0.75}>
-            <View className={`w-[78px] h-[78px] rounded-full border-[3px] items-center justify-center ${isDeviceAligned ? "border-white" : "border-white/25"}`}>
-              <View className={`w-[62px] h-[62px] rounded-full ${isDeviceAligned ? "bg-white" : "bg-white/20"}`} />
+          <TouchableOpacity onPress={onCapture} disabled={!deviceAligned || isCompressing} activeOpacity={0.75}>
+            <View className={`w-[78px] h-[78px] rounded-full border-[3px] items-center justify-center ${deviceAligned ? "border-white" : "border-white/25"}`}>
+              <View className={`w-[62px] h-[62px] rounded-full ${deviceAligned ? "bg-white" : "bg-white/20"}`} />
             </View>
           </TouchableOpacity>
         </View>
