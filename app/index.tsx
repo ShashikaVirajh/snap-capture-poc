@@ -94,8 +94,12 @@ const App = () => {
       return;
     };
 
-    await MediaLibrary.saveToLibraryAsync(compressedUri);
-    Alert.alert("Save Success", "Compressed image has been saved to your Photos library.");
+    try {
+      await MediaLibrary.saveToLibraryAsync(compressedUri);
+      Alert.alert("Save Success", "Compressed image has been saved to your Photos library.");
+    } catch {
+      Alert.alert("Save Failed", "Unable to save image. Please try again.");
+    }
   };
 
   const handleRetake = (): void => {
@@ -104,6 +108,10 @@ const App = () => {
     setCompressedPhoto(null);
     setCapturedAt(null);
     setShowCamera(true);
+  };
+
+  const handleCancelCamera = (): void => {
+    setShowCamera(false);
   };
 
   const handleClose = (): void => {
@@ -121,7 +129,7 @@ const App = () => {
         cameraRef={cameraRef}
         isCompressing={isCompressing}
         onCapture={handleCapture}
-        onCancel={() => setShowCamera(false)}
+        onCancel={handleCancelCamera}
       />
     );
   }
@@ -130,9 +138,9 @@ const App = () => {
   if (originalPhoto && compressedPhoto && originalPhotoSize !== null) {
     return (
       <Review
-        photo={originalPhoto}
-        compressed={compressedPhoto}
-        photoSize={originalPhotoSize}
+        originalPhoto={originalPhoto}
+        compressedPhoto={compressedPhoto}
+        originalPhotoSize={originalPhotoSize}
         capturedAt={capturedAt}
         onSave={handleSave}
         onRetake={handleRetake}
