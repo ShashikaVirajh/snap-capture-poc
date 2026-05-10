@@ -119,7 +119,7 @@ const App = () => {
     return (
       <Capture
         cameraRef={cameraRef}
-        isProcessing={isCompressing}
+        isCompressing={isCompressing}
         onCapture={handleCapture}
         onCancel={() => setShowCamera(false)}
       />

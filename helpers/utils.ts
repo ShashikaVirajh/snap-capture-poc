@@ -1,3 +1,17 @@
+import { ORIENTATION_THRESHOLD } from "./constants";
+
+export const isWithinOrientationThreshold = (pitch: number, roll: number): boolean => {
+    return Math.abs(pitch) <= ORIENTATION_THRESHOLD && Math.abs(roll) <= ORIENTATION_THRESHOLD;
+};
+
+export const getLargestPictureSize = (sizes: string[]): string => {
+    return sizes.reduce((largestSize, currentSize) => {
+        const [currentWidth, currentHeight] = currentSize.split("x").map(Number);
+        const [largestWidth, largestHeight] = largestSize.split("x").map(Number);
+        return currentWidth * currentHeight > largestWidth * largestHeight ? currentSize : largestSize;
+    });
+};
+
 export const getPitch = (y: number, z: number): number => {
     if (Math.abs(z) < 0.5) return 90;
     return Math.atan2(y, Math.abs(z)) * (180 / Math.PI);

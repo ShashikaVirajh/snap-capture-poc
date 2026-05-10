@@ -42,6 +42,7 @@ const Landing: FC<Props> = ({ onOpenCamera }) => {
           <View className="px-3 py-1.5 rounded-full border border-white/10">
             <Text className="text-white/40 text-[10px] tracking-[1px]">COMPRESSION</Text>
           </View>
+
           <View className="px-3 py-1.5 rounded-full border border-white/10">
             <Text className="text-white/40 text-[10px] tracking-[1px]">HAPTICS</Text>
           </View>
